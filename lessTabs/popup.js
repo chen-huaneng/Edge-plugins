@@ -1,8 +1,3 @@
-const langMap = {
-  'en': 'en',
-  'zh_CN': 'zh',
-};
-
 // 格式化延迟时间显示（支持毫秒和秒）
 function formatDelayTime(value) {
   const delay = parseInt(value);
@@ -15,9 +10,6 @@ function formatDelayTime(value) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  // 先初始化语言选择，然后初始化国际化
-  initI18n();
-  
   // 加载链接预览设置
   loadLinkPreviewSettings();
   // 初始化链接预览设置
@@ -266,72 +258,6 @@ function initLinkPreviewSettings() {
   });
 }
 
-// 初始化国际化
-function initI18n() {
-  // 从存储中获取当前语言设置
-  chrome.storage.local.get(['language'], function(result) {
-    const currentLanguage = result.language || chrome.i18n.getUILanguage();
-    // console.log('[NoTab] 应用语言设置:', currentLanguage);
-    
-    // 直接加载并应用所选语言的文本
-    reloadAllI18nText(currentLanguage);
-  });
-}
-
-// 从指定语言加载文本
-function reloadAllI18nText(language) {
-  // console.log('[NoTab] 重新加载语言文本:', language);
-  
-  // 获取所有需要本地化的文本元素
-  const fetchLocalMessages = async (lang) => {
-    try {
-      // console.log('[NoTab] 尝试加载语言文件:', lang);
-      const response = await fetch(`_locales/${lang}/messages.json`);
-      if (!response.ok) {
-        throw new Error(`无法加载语言文件: ${lang}`);
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('加载语言文件失败:', error);
-      // 如果指定语言失败，尝试使用英语
-      if (lang !== 'en') {
-        // console.log('[NoTab] 回退到英语');
-        return fetchLocalMessages('en');
-      }
-      return {};
-    }
-  };
-
-  // 保存当前加载的消息，便于全局访问
-  let currentMessages = {};
-
-  // 应用新语言的文本
-  fetchLocalMessages(language).then(messages => {
-    // 保存消息以便后续使用
-    currentMessages = messages;
-    window.i18nMessages = messages;
-    
-    // 更新所有带有 id 结尾为 -text 的元素文本
-    document.querySelectorAll('[id$="-text"]').forEach(element => {
-      const messageName = element.id.replace('-text', '');
-      const messageObj = messages[messageName];
-      if (messageObj && messageObj.message) {
-        element.textContent = messageObj.message;
-      }
-    });
-
-    // 手动更新特定的非 -text 结尾的 ID
-    const upgradeButtonText = document.getElementById('upgradeToProPopup-text');
-    if (upgradeButtonText && messages['upgradeToProPopup']) {
-        upgradeButtonText.textContent = messages['upgradeToProPopup'].message;
-    }
-    const upgradeDescText = document.getElementById('upgradeDescription-text');
-    if (upgradeDescText && messages['upgradeDescription']) {
-      upgradeDescText.textContent = messages['upgradeDescription'].message;
-    }
-  });
-}
-
 // 自定义i18n消息获取函数，替代chrome.i18n.getMessage
 function getMessage(messageName) {
   // 如果消息已加载到全局对象
@@ -386,11 +312,6 @@ function loadTextSearchSettings() {
       
       // 应用加载的设置到UI
       document.getElementById('searchEngine').value = settings.searchEngine;
-      
-      // 加载拖拽文字动作设置
-      if (settings.dragTextAction) {
-        document.getElementById('dragTextAction').value = settings.dragTextAction;
-      }
 
       if (settings.customSearchUrl) {
         document.getElementById('customSearchUrl').value = settings.customSearchUrl;
@@ -407,7 +328,6 @@ function loadTextSearchSettings() {
         searchEngine: 'google',
         customSearchUrl: '',
         dragTextAction: 'search', // 默认搜索
-        dragRightAction: 'search' // 默认右拖搜索
       };
       
       // 保存默认设置
@@ -421,7 +341,6 @@ function initTextSearchSettings() {
   const searchEngineSelect = document.getElementById('searchEngine');
   const customSearchUrlInput = document.getElementById('customSearchUrl');
   const customSearchContainer = document.getElementById('customSearchContainer');
-  const dragTextActionSelect = document.getElementById('dragTextAction');
   
   // 保存设置的函数
   function saveTextSearchSettings() {
@@ -429,7 +348,6 @@ function initTextSearchSettings() {
       enabled: true, // 始终启用
       searchEngine: searchEngineSelect.value,
       customSearchUrl: customSearchUrlInput.value,
-      dragTextAction: dragTextActionSelect.value,
     };
     
     // 保存到存储
