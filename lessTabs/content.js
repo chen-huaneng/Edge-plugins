@@ -263,9 +263,6 @@ async function init() {
     return; // 直接退出初始化
   }
 
-  // 获取当前语言设置
-  await getCurrentLanguage();
-
   // 设置事件监听器
   setupEventListeners();
 
@@ -781,8 +778,6 @@ async function init() {
       --tooltip-remaining-previews-text: #333333;
       --tooltip-remaining-previews-hover-bg: #e0e0e0;
       --tooltip-remaining-previews-hover-text: #111111;
-      --tooltip-upgrade-button-bg: #4285f4;
-      --tooltip-upgrade-button-text: white;
     }
     
     .NoTab-link-tooltip.theme-dark {
@@ -1329,9 +1324,6 @@ async function init() {
   // 将样式添加到 Shadow DOM 而不是 document.head
   addStylesToShadowDOM(linkTooltipStyle);
 
-  // 初始化国际化
-  initI18n();
-
   // 加载链接预览设置
   loadLinkPreviewSettings();
 
@@ -1395,18 +1387,7 @@ function setupEventListeners() {
   chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     // console.log('[NoTab] 收到消息:', request);
 
-    if (request.action === 'updateLanguage') {
-      // 处理语言更新
-      if (request.language) {
-        // console.log('[NoTab] 接收到语言更新: ', request.language);
-        currentLanguage = request.language;
-        // 刷新国际化文本
-        initI18n();
-        sendResponse({ success: true });
-      } else {
-        sendResponse({ success: false, message: '未提供语言数据' });
-      }
-    } else if (request.action === 'updateLinkPreviewSettings') {
+    if (request.action === 'updateLinkPreviewSettings') {
       // 处理链接预览设置更新
       if (request.settings) {
         // console.log('[NoTab] 接收到链接预览设置更新:', request.settings);
@@ -1424,30 +1405,11 @@ function setupEventListeners() {
       } else {
         sendResponse({ success: false, message: '未提供设置数据' });
       }
-    } else if (request.action === 'updateTranslateSettings') {
-      // 处理翻译设置更新
-      if (request.settings) {
-        // console.log('[NoTab] 接收到翻译设置更新:', request.settings);
-        translateSettings = request.settings;
-        sendResponse({ success: true });
-      } else {
-        sendResponse({ success: false, message: '未提供设置数据' });
-      }
     } else if (request.action === 'searchSelectedText') {
       // 处理右键菜单搜索
       const selectedText = request.selectedText || window.getSelection().toString().trim();
       if (selectedText && selectedText.length > 0) {
         searchSelectedText(selectedText);
-        sendResponse({ success: true });
-      } else {
-        sendResponse({ success: false, message: '没有选中文本' });
-      }
-      return true;
-    } else if (request.action === 'translateSelectedText') {
-      // 处理右键菜单翻译
-      const selectedText = request.selectedText || window.getSelection().toString().trim();
-      if (selectedText && selectedText.length > 0) {
-        translateSelectedText(selectedText);
         sendResponse({ success: true });
       } else {
         sendResponse({ success: false, message: '没有选中文本' });
@@ -2510,7 +2472,7 @@ async function showLinkSummary(event, link, errorTip = undefined) {
         tooltip.classList.remove('dragging', 'resizing');
         document.body.style.userSelect = '';
         
-                         // 保存状态到存储（仅在操作结束时保存一次）
+        // 保存状态到存储（仅在操作结束时保存一次）
         saveLastPreviewState();
         
         // 取消待处理的动画帧
@@ -2675,19 +2637,6 @@ function getMessage(messageName) {
   return chrome.i18n.getMessage(messageName);
 }
 
-// 初始化国际化文本
-async function initI18n() {
-  const lang = await getCurrentLanguage();
-  await loadMessages(lang);
-
-  // 更新DOM中的所有国际化文本
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    el.textContent = getMessage(key);
-  });
-  updateAllUITexts(); //确保在初次加载时也更新预览窗口内的文本
-}
-
 // 加载指定语言的消息
 async function loadMessages(language) {
   try {
@@ -2723,28 +2672,6 @@ async function loadMessages(language) {
     }
     return false;
   }
-}
-
-// 获取当前语言设置
-function getCurrentLanguage() {
-  return new Promise(resolve => {
-    chrome.storage.local.get(['language'], function (result) {
-      let lang = result.language;
-
-      // 如果未设置语言，使用浏览器默认语言
-      if (!lang) {
-        lang = chrome.i18n.getUILanguage();
-        // 将语言保存到storage以便下次使用
-        chrome.storage.local.set({ language: lang }, function () {
-          // console.log('[NoTab] 已保存默认语言设置:', lang);
-        });
-      }
-
-      currentLanguage = lang;
-      // console.log('[NoTab] 获取到当前语言设置:', lang);
-      resolve(lang);
-    });
-  });
 }
 
 // 更新所有UI文本的辅助函数
