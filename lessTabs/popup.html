@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>NoTab</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="sidebar">
+    <div class="app-header">
+      <h1 class="app-title">NoTab</h1>
+    </div>
+    
+    <div class="sidebar-content">
+      <div class="settings-section">
+
+        
+        <!-- 链接预览设置 -->
+        <div class="settings-group">
+          <div class="group-header">
+            <i class="fas fa-link"></i>
+            <h2 id="linkPreviewSettings-text"></h2>
+          </div>
+          
+          <div class="setting-item">
+            <label for="linkPreviewTrigger">
+              <i class="fas fa-mouse-pointer"></i>
+              <span id="triggerMethod-text"></span>
+            </label>
+            <select id="linkPreviewTrigger" class="styled-select">
+              <option value="alt_hover" id="altHover-text"></option>
+              <option value="alt_click" id="altClick-text"></option>
+              <option value="long_press" id="longPress-text"></option>
+              <option value="drag_link" id="dragLink-text"></option>
+              <option value="hover" id="hover-text"></option>
+              <option value="disabled" id="disabled-text"></option>
+            </select>
+          </div>
+          
+          <div class="setting-item" id="customTriggerKeyContainer" style="display: none;">
+            <label for="customTriggerKey">
+              <i class="fas fa-keyboard"></i>
+              <span id="customTriggerKey-text">自定义快捷键</span>
+            </label>
+            <select id="customTriggerKey" class="styled-select">
+              <option value="alt" id="customTriggerKeyAlt-text">Alt</option>
+              <option value="cmd" id="customTriggerKeyCmd-text">Cmd</option>
+              <option value="ctrl" id="customTriggerKeyCtrl-text">Ctrl</option>
+            </select>
+          </div>
+          
+          <div class="setting-item" id="longPressDelayContainer">
+            <label for="longPressDelay">
+              <i class="fas fa-clock"></i>
+              <span id="longPressDelay-text"></span>
+            </label>
+            <div class="range-wrapper">
+              <input type="range" id="longPressDelay" min="200" max="10000" step="100" value="500">
+              <span id="longPressDelayValue">500ms</span>
+            </div>
+          </div>
+          
+          <div class="setting-item" id="altHoverDelayContainer">
+            <label for="altHoverDelay">
+              <i class="fas fa-clock"></i>
+              <span id="hoverDelay-text"></span>
+            </label>
+            <div class="range-wrapper">
+              <input type="range" id="altHoverDelay" min="200" max="10000" step="100" value="200">
+              <span id="altHoverDelayValue">200ms</span>
+            </div>
+          </div>
+          
+          <div class="setting-item" id="hoverDelayContainer">
+            <label for="hoverDelay">
+              <i class="fas fa-clock"></i>
+              <span id="hoverDelay-text">悬停延迟</span>
+            </label>
+            <div class="range-wrapper">
+              <input type="range" id="hoverDelay" min="200" max="10000" step="100" value="500">
+              <span id="hoverDelayValue">500ms</span>
+            </div>
+          </div>
+          
+          <div class="setting-item">
+            <label for="previewSize">
+              <i class="fas fa-expand"></i>
+              <span id="previewSize-text">预览框大小</span>
+            </label>
+            <select id="previewSize" class="styled-select">
+              <option value="small" id="previewSizeSmall-text">小</option>
+              <option value="medium" id="previewSizeMedium-text">中</option>
+              <option value="large" id="previewSizeLarge-text">大</option>
+              <option value="last" id="previewSizeLast-text">上次大小</option>
+            </select>
+          </div>
+
+          <div class="setting-item">
+            <label for="previewPosition">
+              <i class="fas fa-arrows-alt"></i>
+              <span id="previewPosition-text">弹窗位置</span>
+            </label>
+            <select id="previewPosition" class="styled-select">
+              <option value="cursor" id="previewPositionCursor-text">跟随鼠标</option>
+              <option value="left" id="previewPositionLeft-text">左侧</option>
+              <option value="center" id="previewPositionCenter-text">中间</option>
+              <option value="right" id="previewPositionRight-text">右侧</option>
+              <option value="last" id="previewPositionLast-text">上次位置</option>
+            </select>
+          </div>
+
+          <div class="setting-item">
+            <label>
+              <i class="fas fa-palette"></i>
+              <span id="previewTheme-text">弹窗主题</span>
+            </label>
+          </div>
+          
+          <div class="setting-item theme-setting-row">
+            <div class="theme-selector">
+              <div class="theme-option" data-theme="light">
+                <div class="theme-preview light-theme">
+                  <div class="theme-content">
+                    <div class="theme-text-line"></div>
+                    <div class="theme-text-line short"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="theme-option" data-theme="dark">
+                <div class="theme-preview dark-theme">
+                  <div class="theme-content">
+                    <div class="theme-text-line"></div>
+                    <div class="theme-text-line short"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="theme-option" data-theme="gray">
+                <div class="theme-preview gray-theme">
+                  <div class="theme-content">
+                    <div class="theme-text-line"></div>
+                    <div class="theme-text-line short"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="theme-option" data-theme="blue">
+                <div class="theme-preview blue-theme">
+                  <div class="theme-content">
+                    <div class="theme-text-line"></div>
+                    <div class="theme-text-line short"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="theme-option" data-theme="green">
+                <div class="theme-preview green-theme">
+                  <div class="theme-content">
+                    <div class="theme-text-line"></div>
+                    <div class="theme-text-line short"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="theme-option" data-theme="purple">
+                <div class="theme-preview purple-theme">
+                  <div class="theme-content">
+                    <div class="theme-text-line"></div>
+                    <div class="theme-text-line short"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="theme-option" data-theme="pink">
+                <div class="theme-preview pink-theme">
+                  <div class="theme-content">
+                    <div class="theme-text-line"></div>
+                    <div class="theme-text-line short"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="theme-option" data-theme="custom" id="customThemeOption">
+                <div class="theme-preview custom-theme-preview">
+                  <i class="fas fa-paint-brush"></i>
+                </div>
+              </div>
+            </div>
+            <!-- 隐藏的select元素，用于保持兼容性 -->
+            <select id="previewTheme" class="styled-select" style="display: none;">
+              <option value="light">浅色</option>
+              <option value="dark">深色</option>
+              <option value="gray">灰色</option>
+              <option value="blue">蓝色</option>
+              <option value="green">绿色</option>
+              <option value="purple">紫色</option>
+              <option value="pink">粉色</option>
+              <option value="custom">自定义</option>
+            </select>
+            
+            <!-- 自定义主题颜色选择器 -->
+            <div id="customThemeContainer" style="display: none; margin-top: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <input type="color" id="customThemeColorBg" class="color-picker">
+                <span style="font-size: 12px;">背景颜色</span>
+                <input type="color" id="customThemeColorText" class="color-picker">
+                <span style="font-size: 12px;">文字颜色</span>
+                <button id="applyCustomTheme" class="styled-button" style="margin-left: auto; padding: 4px 8px; font-size: 12px;">
+                  应用
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="setting-item">
+            <label for="overlayOpacity">
+              <i class="fas fa-layer-group"></i>
+              <span id="overlayOpacity-text">背景遮罩透明度</span>
+            </label>
+            <div class="range-wrapper">
+              <input type="range" id="overlayOpacity" min="0" max="100" step="10" value="50">
+              <span id="overlayOpacityValue">50%</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 拖拽文字设置 -->
+        <div class="settings-group">
+          <div class="group-header">
+            <i class="fas fa-mouse-pointer"></i>
+            <h2 id="dragTextSettings-text">拖拽文字设置</h2>
+          </div>
+          
+          <div class="setting-item">
+            <label for="dragTextAction">
+              <i class="fas fa-mouse-pointer"></i>
+              <span id="dragTextAction-text">拖拽动作</span>
+            </label>
+            <select id="dragTextAction" class="styled-select">
+              <option value="search" id="dragTextActionSearch-text">搜索</option>
+              <option value="translate" id="dragTextActionTranslate-text">翻译</option>
+              <option value="both" id="dragTextActionBoth-text">同时启用</option>
+              <option value="disabled" id="dragTextActionDisabled-text">禁用</option>
+            </select>
+          </div>
+          
+          <div class="setting-item" id="dragDirectionContainer" style="display: none; width: 100%;">
+            <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between;">
+              <div style="flex: 1;">
+                <label for="dragLeftAction" style="font-size: 12px;">
+                  <i class="fas fa-arrow-left"></i>
+                  <span id="dragLeftAction-text" class="single-line-text">左拖动作</span>
+                </label>
+                <select id="dragLeftAction" class="styled-select styled-select-small" style="margin-top: 10px;">
+                  <option value="translate" id="dragLeftActionTranslate-text">翻译</option>
+                  <option value="search" id="dragLeftActionSearch-text">搜索</option>
+                </select>
+              </div>
+              <div style="flex: 1;">
+                <label for="dragRightAction" style="font-size: 12px;">
+                  <i class="fas fa-arrow-right"></i>
+                  <span id="dragRightAction-text" class="single-line-text">右拖动作</span>
+                </label>
+                <select id="dragRightAction" class="styled-select styled-select-small" style="margin-top: 10px;">
+                  <option value="search" id="dragRightActionSearch-text">搜索</option>
+                  <option value="translate" id="dragRightActionTranslate-text">翻译</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <p class="settings-description settings-description-inner" id="dragTextInstructions-text">选中文本后拖拽即可触发搜索或翻译</p>
+          
+          <div class="setting-item">
+            <label>
+              <i class="fas fa-link"></i>
+              <span id="dragUrlAutoOpen-text">自动打开链接</span>
+            </label>
+            <div class="toggle-switch">
+              <input type="checkbox" id="dragUrlAutoOpen" class="toggle-input">
+              <label for="dragUrlAutoOpen" class="toggle-slider"></label>
+            </div>
+          </div>
+          
+          <p class="settings-description" id="dragUrlAutoOpenInstructions-text">如果选中文本是URL，会自动打开链接</p>
+        </div>
+        
+        <!-- 选中文本搜索设置 -->
+        <div class="settings-group" id="search-settings-group">
+          <div class="group-header">
+            <i class="fas fa-search"></i>
+            <h2 id="textSelectionSearch-text">选中文本搜索</h2>
+          </div>
+          
+          <div class="setting-item">
+            <label for="searchEngine">
+              <i class="fas fa-cog"></i>
+              <span id="searchEngine-text">默认搜索引擎</span>
+            </label>
+            <select id="searchEngine" class="styled-select">
+              <option value="google" id="searchEngineGoogle-text">Google</option>
+              <option value="bing" id="searchEngineBing-text">Bing</option>
+              <option value="baidu" id="searchEngineBaidu-text">百度</option>
+              <option value="custom" id="searchEngineCustom-text">自定义</option>
+            </select>
+          </div>
+          
+          <div class="setting-item" id="customSearchContainer" style="display: none;">
+            <label for="customSearchUrl">
+              <i class="fas fa-link"></i>
+              <span id="customSearchUrl-text">自定义搜索URL</span>
+            </label>
+            <input type="text" id="customSearchUrl" class="styled-input" placeholder="https://example.com/search?q=%s">
+            <p class="setting-help" id="customSearchHelp-text">使用 %s 替代搜索关键词</p>
+          </div>
+          
+          <p class="settings-description" id="searchInstructions-text">选中文本后，右键菜单中会显示搜索选项</p>
+        </div>
+        
+        <!-- 文本翻译设置 -->
+        <div class="settings-group" id="translate-settings-group">
+          <div class="group-header">
+            <i class="fas fa-language"></i>
+            <h2 id="textTranslation-text">文本翻译</h2>
+          </div>
+          
+          <div class="setting-item">
+            <label for="translateEngine">
+              <i class="fas fa-cog"></i>
+              <span id="translateEngine-text">默认翻译引擎</span>
+            </label>
+            <select id="translateEngine" class="styled-select">
+              <option value="bing" id="translateEngineBing-text">Bing</option>
+              <option value="baidu" id="translateEngineBaidu-text">百度</option>
+              <option value="deepl" id="translateEngineDeepL-text">DeepL</option>
+              <option value="custom" id="translateEngineCustom-text">自定义</option>
+            </select>
+          </div>
+          
+          <div class="setting-item">
+            <label for="targetLanguage">
+              <i class="fas fa-globe"></i>
+              <span id="targetLanguage-text">目标语言</span>
+            </label>
+            <select id="targetLanguage" class="styled-select">
+              <option value="en">English</option>
+              <option value="zh">简体中文</option>
+            </select>
+          </div>
+          
+          <div class="setting-item" id="customTranslateContainer" style="display: none;">
+            <label for="customTranslateUrl">
+              <i class="fas fa-link"></i>
+              <span id="customTranslateUrl-text">自定义翻译URL</span>
+            </label>
+            <input type="text" id="customTranslateUrl" class="styled-input" placeholder="https://example.com/translate?text=%s&to=%tl">
+            <p class="setting-help" id="customTranslateHelp-text">使用 %s 替代文本，%tl 替代目标语言</p>
+          </div>
+          
+          <p class="settings-description" id="translateInstructions-text">选中文本后，右键菜单中会显示翻译选项</p>
+        </div>
+
+        <!-- 网站黑名单设置 -->
+        <div class="settings-group">
+          <div class="group-header">
+            <i class="fas fa-ban"></i>
+            <h2 id="blacklistSitesHeader-text">禁用网站名单</h2>
+          </div>
+          
+          <div class="setting-item blacklist-container">
+            <textarea id="blacklistSites" class="styled-textarea" 
+                   placeholder="example.com &#10;*.example.com &#10;sub.example.com &#10;.example.com" rows="6"></textarea>
+          </div>
+
+          <p class="settings-description settings-description-inner" id="blacklistSitesDescription-text">在以下网站上不启用链接预览功能</p>
+        </div>
+          
+        
+        <!-- 语言设置 -->
+        <div class="settings-group">
+          <div class="group-header">
+            <i class="fas fa-language"></i>
+            <h2 id="languageSettings-text"></h2>
+          </div>
+          
+          <div class="setting-item">
+            <label for="languageSelect">
+              <i class="fas fa-globe"></i>
+              <span id="language-text"></span>
+            </label>
+            <select id="languageSelect" class="styled-select">
+              <option value="en" id="languageEnglish-text"></option>
+              <option value="zh_CN" id="languageSimplifiedChinese-text"></option>
+            </select>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

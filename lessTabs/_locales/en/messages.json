@@ -1,0 +1,464 @@
+{
+   "altClick": {
+      "description": "Alt+Click option",
+      "message": "Alt+Click"
+   },
+   "altHover": {
+      "description": "Alt+Hover option",
+      "message": "Alt+Hover"
+   },
+   "blacklistSitesDescription": {
+      "description": "Disable website list setting description",
+      "message": "Disable link preview on these websites, one domain per line"
+   },
+   "blacklistSitesHeader": {
+      "description": "Disable website list setting header",
+      "message": "Disable Website List"
+   },
+   "cancel": {
+      "description": "Cancel button",
+      "message": "Cancel"
+   },
+   "checkingStatus": {
+      "description": "Message shown while checking membership status",
+      "message": "Checking..."
+   },
+   "close": {
+      "description": "Close button tooltip",
+      "message": "Close"
+   },
+   "customSearchHelp": {
+      "message": "Use %s as the placeholder for the search keyword"
+   },
+   "customSearchUrl": {
+      "message": "Custom Search URL"
+   },
+   "customTranslateHelp": {
+      "message": "Use %s as a placeholder for text and %tl for target language"
+   },
+   "customTranslateUrl": {
+      "message": "Custom Translation URL"
+   },
+   "customTriggerKey": {
+      "description": "Custom trigger key setting label",
+      "message": "Custom Trigger Key"
+   },
+   "customTriggerKeyAlt": {
+      "description": "Alt key option",
+      "message": "Alt Key"
+   },
+   "customTriggerKeyCmd": {
+      "description": "Cmd key option",
+      "message": "Cmd Key"
+   },
+   "customTriggerKeyCtrl": {
+      "description": "Ctrl key option",
+      "message": "Ctrl Key"
+   },
+   "disabled": {
+      "description": "Disabled preview option",
+      "message": "Disabled"
+   },
+   "dragLeftAction": {
+      "description": "Left drag action setting",
+      "message": "Left Drag Action"
+   },
+   "dragLeftActionSearch": {
+      "description": "Left drag search option",
+      "message": "Search"
+   },
+   "dragLeftActionTranslate": {
+      "description": "Left drag translate option",
+      "message": "Translate"
+   },
+   "dragLink": {
+      "description": "Drag link option",
+      "message": "Drag Link"
+   },
+   "dragRightAction": {
+      "description": "Right drag action setting",
+      "message": "Right Drag Action"
+   },
+   "dragRightActionSearch": {
+      "description": "Right drag search option",
+      "message": "Search"
+   },
+   "dragRightActionTranslate": {
+      "description": "Right drag translate option",
+      "message": "Translate"
+   },
+   "dragTextAction": {
+      "description": "Label for drag text action setting",
+      "message": "Drag Text Action"
+   },
+   "dragTextActionBoth": {
+      "description": "Enable both search and translate for drag text action",
+      "message": "Enable Both"
+   },
+   "dragTextActionDisabled": {
+      "description": "Disabled option for drag text action",
+      "message": "Disabled"
+   },
+   "dragTextActionSearch": {
+      "description": "Search option for drag text action",
+      "message": "Search"
+   },
+   "dragTextActionTranslate": {
+      "description": "Translate option for drag text action",
+      "message": "Translate"
+   },
+   "dragTextInstructions": {
+      "description": "Instructions for drag text feature",
+      "message": "Select text and drag to search or translate"
+   },
+   "dragTextSettings": {
+      "description": "Header for drag text settings section",
+      "message": "Drag Text Settings"
+   },
+   "dragUrlAutoOpen": {
+      "description": "Open URL automatically option",
+      "message": "Open URL Automatically"
+   },
+   "dragUrlAutoOpenInstructions": {
+      "message": "If the selected text is a URL, it will be automatically opened"
+   },
+   "emailEmpty": {
+      "description": "Error message when email is empty",
+      "message": "Please enter an email"
+   },
+   "emailInstructions": {
+      "description": "Email settings instructions",
+      "message": "Enter your NoTab email to sync Pro membership status"
+   },
+   "emailInvalid": {
+      "description": "Error message when email format is invalid",
+      "message": "Invalid email format"
+   },
+   "emailSaved": {
+      "description": "Success message after saving email",
+      "message": "Email saved successfully"
+   },
+   "extDescription": {
+      "description": "Extension description",
+      "message": "NoTab - Preview links on the current page, supports translation, search, and reading mode, greatly enhances your browsing experience"
+   },
+   "extName": {
+      "description": "Extension name",
+      "message": "NoTab - link preview assistant|translation|search"
+   },
+   "freeMemberStatus": {
+      "description": "Free user status display",
+      "message": "Free User"
+   },
+   "hover": {
+      "message": "Hover"
+   },
+   "hoverDelay": {
+      "message": "Hover Delay"
+   },
+   "hoverDelayDescription": {
+      "message": "Time to wait before showing preview on hover"
+   },
+   "language": {
+      "description": "Language selection label",
+      "message": "Language"
+   },
+   "languageDanish": {
+      "description": "Danish language option",
+      "message": "Dansk"
+   },
+   "languageEnglish": {
+      "description": "English language option",
+      "message": "English"
+   },
+   "languageFrench": {
+      "description": "French language option",
+      "message": "Français"
+   },
+   "languageGerman": {
+      "description": "German language option",
+      "message": "Deutsch"
+   },
+   "languageHindi": {
+      "description": "Hindi language option",
+      "message": "हिंदी"
+   },
+   "languageItalian": {
+      "description": "Italian language option",
+      "message": "Italiano"
+   },
+   "languageJapanese": {
+      "description": "Japanese language option",
+      "message": "日本語"
+   },
+   "languageRussian": {
+      "description": "Russian language option",
+      "message": "Русский"
+   },
+   "languageSettings": {
+      "description": "Language settings section header",
+      "message": "Language Settings"
+   },
+   "languageSimplifiedChinese": {
+      "description": "Simplified Chinese language option",
+      "message": "简体中文"
+   },
+   "languageTraditionalChinese": {
+      "description": "Traditional Chinese language option",
+      "message": "繁體中文"
+   },
+   "languageUpdated": {
+      "description": "Message shown after updating language",
+      "message": "Language updated."
+   },
+   "limitFootnote": {
+      "description": "Daily limit footnote",
+      "message": "Non-Pro version has a daily limit of 10 popups\u003Cbr>If you are a Pro user, please link your email in the settings."
+   },
+   "limitReachedTitle": {
+      "description": "Popup title when preview limit is reached",
+      "message": "Limit Reached"
+   },
+   "linkPreviewSettings": {
+      "description": "Link preview settings section",
+      "message": "Link Preview Settings"
+   },
+   "linkPreviewSettingsUpdated": {
+      "message": "Settings updated"
+   },
+   "longPress": {
+      "description": "Long press option",
+      "message": "Long Press"
+   },
+   "longPressDelay": {
+      "description": "Long press delay label",
+      "message": "Long Press Delay"
+   },
+   "multiplePreviewsRequireVip": {
+      "message": "You need to upgrade to the Pro version to use multiple preview windows."
+   },
+   "none": {
+      "description": "None option",
+      "message": "None"
+   },
+   "openInNewWindow": {
+      "description": "Open in new window button tooltip",
+      "message": "Open in New Window"
+   },
+   "overlayOpacity": {
+      "description": "Background overlay opacity label",
+      "message": "Background Overlay Opacity"
+   },
+   "pinPreview": {
+      "description": "Pin preview button tooltip",
+      "message": "Pin Preview"
+   },
+   "previewLimitReached": {
+      "message": "You have reached the daily preview limit for free users."
+   },
+   "previewPosition": {
+      "description": "Preview position label",
+      "message": "Preview Position"
+   },
+   "previewPositionCenter": {
+      "description": "Center option",
+      "message": "Center"
+   },
+   "previewPositionCursor": {
+      "description": "Follow cursor option",
+      "message": "Follow Cursor"
+   },
+   "previewPositionLast": {
+      "description": "Last position option",
+      "message": "Last"
+   },
+   "previewPositionLeft": {
+      "description": "Left option",
+      "message": "Left"
+   },
+   "previewPositionRight": {
+      "description": "Right option",
+      "message": "Right"
+   },
+   "previewSize": {
+      "description": "Popup size label",
+      "message": "Popup Size:"
+   },
+   "previewSizeLarge": {
+      "description": "Large preview size option",
+      "message": "Large"
+   },
+   "previewSizeLast": {
+      "description": "Last preview size option",
+      "message": "Last"
+   },
+   "previewSizeMedium": {
+      "description": "Medium preview size option",
+      "message": "Medium"
+   },
+   "previewSizeSmall": {
+      "description": "Small preview size option",
+      "message": "Small"
+   },
+   "previewTheme": {
+      "description": "Preview theme label",
+      "message": "Preview Theme"
+   },
+   "previewThemeDark": {
+      "description": "Dark theme option",
+      "message": "Dark"
+   },
+   "previewThemeGray": {
+      "description": "Gray theme option",
+      "message": "Gray"
+   },
+   "previewThemeLight": {
+      "description": "Light theme option",
+      "message": "Light"
+   },
+   "proMemberStatus": {
+      "description": "Pro member status display",
+      "message": "Pro Member"
+   },
+   "readerMode": {
+      "description": "Reader mode button tooltip",
+      "message": "Reader Mode"
+   },
+   "readerModeError": {
+      "description": "Error message when reader mode fails",
+      "message": "Reader Mode Error"
+   },
+   "readerModeUnavailable": {
+      "message": "Reader mode unavailable for this page"
+   },
+   "refresh": {
+      "description": "Refresh button tooltip",
+      "message": "Refresh"
+   },
+   "remainingPreviewsClickToUpgrade": {
+      "message": "Remaining previews, click to upgrade"
+   },
+   "save": {
+      "description": "Save button",
+      "message": "Save"
+   },
+   "saveEmail": {
+      "description": "Save email button",
+      "message": "Save"
+   },
+   "saveLanguage": {
+      "description": "Save language button",
+      "message": "Save Language"
+   },
+   "saveSettings": {
+      "description": "Save settings button",
+      "message": "Save Settings"
+   },
+   "searchEngine": {
+      "message": "Search Engine"
+   },
+   "searchEngineBaidu": {
+      "message": "Baidu"
+   },
+   "searchEngineBing": {
+      "message": "Bing"
+   },
+   "searchEngineCustom": {
+      "message": "Custom"
+   },
+   "searchEngineGoogle": {
+      "message": "Google"
+   },
+   "searchFor": {
+      "message": "Search for"
+   },
+   "searchInstructions": {
+      "message": "Select text and right-click to see search options"
+   },
+   "searchRequireVip": {
+      "message": "You need to upgrade to the Pro version to use the search feature."
+   },
+   "settingsTab": {
+      "description": "Settings tab name",
+      "message": "Settings"
+   },
+   "targetLanguage": {
+      "message": "Target Language"
+   },
+   "targetLanguageAuto": {
+      "message": "Auto Detect"
+   },
+   "textSearchSettingsUpdated": {
+      "message": "Text search settings updated"
+   },
+   "textSelectionSearch": {
+      "message": "Search Settings"
+   },
+   "textTranslation": {
+      "message": "Text Translation"
+   },
+   "translateEngine": {
+      "message": "Default Translation Engine"
+   },
+   "translateEngineBaidu": {
+      "message": "Baidu Translate"
+   },
+   "translateEngineBing": {
+      "message": "Bing Translator"
+   },
+   "translateEngineCustom": {
+      "message": "Custom"
+   },
+   "translateEngineDeepL": {
+      "message": "DeepL Translator"
+   },
+   "translateInstructions": {
+      "message": "Select text and use the right-click menu to translate"
+   },
+   "translateRequireVip": {
+      "message": "You need to upgrade to the Pro version to use the translation feature."
+   },
+   "translateSettingsUpdated": {
+      "message": "Translation settings updated"
+   },
+   "translateText": {
+      "message": "Translate"
+   },
+   "triggerMethod": {
+      "description": "Trigger method label",
+      "message": "Trigger Method"
+   },
+   "upgradeDescription": {
+      "description": "Upgrade description text",
+      "message": "Unlock search, translation, unlimited previews, and multiple windows!"
+   },
+   "upgradeToPro": {
+      "description": "Text for the upgrade to Pro button",
+      "message": "Upgrade to Pro"
+   },
+   "upgradeToProPopup": {
+      "description": "Upgrade to Pro button text",
+      "message": "Upgrade to Pro"
+   },
+   "upgradeToVip": {
+      "description": "Upgrade to VIP membership button",
+      "message": "Upgrade to VIP"
+   },
+   "userEmail": {
+      "description": "Email account label",
+      "message": "Email Account"
+   },
+   "userSettings": {
+      "description": "User settings section title",
+      "message": "User Settings"
+   },
+   "videoMode": {
+      "message": "Video Mode"
+   },
+   "videoModeFailed": {
+      "message": "Failed to load video, please try again or open in new tab."
+   },
+   "videoModeUnavailable": {
+      "message": "Video mode unavailable for this link"
+   }
+}

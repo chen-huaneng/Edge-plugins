@@ -1,0 +1,38 @@
+{
+   "action": {
+      "default_icon": {
+         "128": "images/icon.png",
+         "16": "images/icon.png",
+         "48": "images/icon.png"
+      },
+      "default_title": "lessTabs"
+   },
+   "background": {
+      "service_worker": "background.js"
+   },
+   "content_scripts": [ {
+      "all_frames": true,
+      "css": [ "styles.css" ],
+      "js": [ "Readability.js", "content.js" ],
+      "matches": [ "\u003Call_urls>" ]
+   } ],
+   "default_locale": "zh_CN",
+   "description": "lessTabs - 在当前页面预览链接，支持翻译、搜索、阅读模式，极大提升你的浏览体验",
+   "host_permissions": [ "\u003Call_urls>" ],
+   "icons": {
+      "128": "images/icon.png",
+      "16": "images/icon.png",
+      "48": "images/icon.png"
+   },
+   "manifest_version": 3,
+   "name": "lessTabs",
+   "permissions": [ "storage", "activeTab", "tabs", "contextMenus", "sidePanel", "declarativeNetRequest" ],
+   "side_panel": {
+      "default_path": "popup.html"
+   },
+   "version": "1.0.0",
+   "web_accessible_resources": [ {
+      "matches": [ "\u003Call_urls>" ],
+      "resources": [ "popup.html", "popup.css", "popup.js", "_locales/*/*.json" ]
+   } ]
+}

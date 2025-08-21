@@ -1,0 +1,404 @@
+{
+   "altClick": {
+      "description": "Alt+点击选项",
+      "message": "Alt+点击"
+   },
+   "altHover": {
+      "description": "Alt+悬停选项",
+      "message": "Alt+悬停"
+   },
+   "blacklistSitesDescription": {
+      "description": "网站黑名单设置描述",
+      "message": "在以上网站上不启用链接预览功能，每行一个域名，这些网站将不启用链接预览"
+   },
+   "blacklistSitesHeader": {
+      "description": "网站黑名单设置模块标题",
+      "message": "禁用网站名单"
+   },
+   "cancel": {
+      "description": "取消按钮",
+      "message": "取消"
+   },
+   "checkingStatus": {
+      "description": "检查会员状态时的提示",
+      "message": "检查中..."
+   },
+   "close": {
+      "description": "Close button tooltip",
+      "message": "关闭"
+   },
+   "customSearchHelp": {
+      "message": "使用 %s 作为搜索关键词的占位符"
+   },
+   "customSearchUrl": {
+      "message": "自定义搜索URL"
+   },
+   "customTranslateHelp": {
+      "message": "使用 %s 作为文本占位符，%tl 作为目标语言占位符"
+   },
+   "customTranslateUrl": {
+      "message": "自定义翻译URL"
+   },
+   "customTriggerKey": {
+      "description": "自定义快捷键设置标签",
+      "message": "自定义快捷键"
+   },
+   "customTriggerKeyAlt": {
+      "description": "Alt键选项",
+      "message": "Alt键"
+   },
+   "customTriggerKeyCmd": {
+      "description": "Cmd键选项",
+      "message": "Cmd键"
+   },
+   "customTriggerKeyCtrl": {
+      "description": "Ctrl键选项",
+      "message": "Ctrl键"
+   },
+   "disabled": {
+      "description": "禁用url预览选项",
+      "message": "禁用"
+   },
+   "dragLeftAction": {
+      "description": "左拖动作设置",
+      "message": "左拖动作"
+   },
+   "dragLeftActionSearch": {
+      "description": "左拖搜索选项",
+      "message": "搜索"
+   },
+   "dragLeftActionTranslate": {
+      "description": "左拖翻译选项",
+      "message": "翻译"
+   },
+   "dragLink": {
+      "description": "拖动链接选项",
+      "message": "拖动链接"
+   },
+   "dragRightAction": {
+      "description": "右拖动作设置",
+      "message": "右拖动作"
+   },
+   "dragRightActionSearch": {
+      "description": "右拖搜索选项",
+      "message": "搜索"
+   },
+   "dragRightActionTranslate": {
+      "description": "右拖翻译选项",
+      "message": "翻译"
+   },
+   "dragTextAction": {
+      "description": "拖拽文字动作设置标签",
+      "message": "拖拽文字动作"
+   },
+   "dragTextActionBoth": {
+      "description": "拖拽文字动作同时启用选项",
+      "message": "同时启用"
+   },
+   "dragTextActionDisabled": {
+      "description": "拖拽文字动作禁用选项",
+      "message": "禁用"
+   },
+   "dragTextActionSearch": {
+      "description": "拖拽文字动作搜索选项",
+      "message": "搜索"
+   },
+   "dragTextActionTranslate": {
+      "description": "拖拽文字动作翻译选项",
+      "message": "翻译"
+   },
+   "dragTextInstructions": {
+      "description": "拖拽文字功能说明",
+      "message": "选中文本后拖拽即可触发搜索或翻译"
+   },
+   "dragTextSettings": {
+      "description": "拖拽文字设置区域标题",
+      "message": "拖拽文字设置"
+   },
+   "dragUrlAutoOpen": {
+      "description": "自动打开链接选项",
+      "message": "自动打开链接"
+   },
+   "dragUrlAutoOpenInstructions": {
+      "message": "如果选中文本是URL，会自动打开链接"
+   },
+   "extDescription": {
+      "description": "扩展描述",
+      "message": "NoTab - 在当前页面预览链接，支持翻译、搜索、阅读模式，极大提升你的浏览体验"
+   },
+   "extName": {
+      "description": "扩展名称",
+      "message": "NoTab - 链接预览助手|翻译|搜索"
+   },
+   "freeMemberStatus": {
+      "description": "免费用户状态显示",
+      "message": "免费用户"
+   },
+   "hover": {
+      "message": "悬停"
+   },
+   "hoverDelay": {
+      "message": "悬停延迟"
+   },
+   "hoverDelayDescription": {
+      "message": "鼠标悬停多久后显示预览"
+   },
+   "language": {
+      "description": "Language selection label",
+      "message": "语言"
+   },
+   "languageEnglish": {
+      "description": "English language option",
+      "message": "English"
+   },
+   "languageSettings": {
+      "description": "Language settings section header",
+      "message": "语言设置"
+   },
+   "languageSimplifiedChinese": {
+      "description": "Simplified Chinese language option",
+      "message": "简体中文"
+   },
+   "languageUpdated": {
+      "description": "Message shown after updating language",
+      "message": "语言已更新。"
+   },
+   "linkPreviewSettings": {
+      "description": "链接预览设置区域",
+      "message": "链接预览设置"
+   },
+   "linkPreviewSettingsUpdated": {
+      "message": "设置已更新"
+   },
+   "longPress": {
+      "description": "长按链接选项",
+      "message": "长按链接"
+   },
+   "longPressDelay": {
+      "description": "长按延迟标签",
+      "message": "长按延迟"
+   },
+   "none": {
+      "description": "无选项",
+      "message": "无"
+   },
+   "openInNewWindow": {
+      "description": "Open in new window button tooltip",
+      "message": "新窗口打开"
+   },
+   "overlayOpacity": {
+      "message": "背景遮罩透明度"
+   },
+   "pinPreview": {
+      "description": "Pin preview button tooltip",
+      "message": "固定预览"
+   },
+   "previewLimitReached": {
+      "message": "您已达到免费用户的每日预览上限。"
+   },
+   "previewPosition": {
+      "description": "预览框位置设置标签",
+      "message": "弹窗位置"
+   },
+   "previewPositionCenter": {
+      "description": "中间选项",
+      "message": "中间"
+   },
+   "previewPositionCursor": {
+      "description": "跟随鼠标选项",
+      "message": "跟随鼠标"
+   },
+   "previewPositionLast": {
+      "description": "上次位置选项",
+      "message": "上次位置"
+   },
+   "previewPositionLeft": {
+      "description": "左侧选项",
+      "message": "左侧"
+   },
+   "previewPositionRight": {
+      "description": "右侧选项",
+      "message": "右侧"
+   },
+   "previewSize": {
+      "description": "Preview size label",
+      "message": "弹窗大小"
+   },
+   "previewSizeLarge": {
+      "description": "Large preview size option",
+      "message": "大"
+   },
+   "previewSizeLast": {
+      "description": "Last preview size option",
+      "message": "上次大小"
+   },
+   "previewSizeMedium": {
+      "description": "Medium preview size option",
+      "message": "中"
+   },
+   "previewSizeSmall": {
+      "description": "Small preview size option",
+      "message": "小"
+   },
+   "previewTheme": {
+      "description": "弹窗主题设置标签",
+      "message": "弹窗主题"
+   },
+   "previewThemeDark": {
+      "description": "深色选项",
+      "message": "深色"
+   },
+   "previewThemeGray": {
+      "description": "灰色选项",
+      "message": "灰色"
+   },
+   "previewThemeLight": {
+      "description": "浅色选项",
+      "message": "浅色"
+   },
+   "proMemberStatus": {
+      "description": "Pro会员状态显示",
+      "message": "Pro"
+   },
+   "readerMode": {
+      "description": "Reader mode button tooltip",
+      "message": "阅读模式"
+   },
+   "readerModeError": {
+      "description": "Error message when reader mode fails",
+      "message": "阅读模式错误"
+   },
+   "readerModeUnavailable": {
+      "message": "阅读模式在此页面不可用"
+   },
+   "refresh": {
+      "description": "Refresh button tooltip",
+      "message": "刷新"
+   },
+   "remainingPreviewsClickToUpgrade": {
+      "message": "剩余预览次数，点击升级"
+   },
+   "save": {
+      "description": "保存按钮",
+      "message": "保存"
+   },
+   "saveEmail": {
+      "description": "保存邮箱按钮",
+      "message": "保存"
+   },
+   "saveLanguage": {
+      "description": "Save language button",
+      "message": "保存语言设置"
+   },
+   "saveSettings": {
+      "description": "Save settings button",
+      "message": "保存设置"
+   },
+   "searchEngine": {
+      "message": "搜索引擎"
+   },
+   "searchEngineBaidu": {
+      "message": "百度"
+   },
+   "searchEngineBing": {
+      "message": "必应"
+   },
+   "searchEngineCustom": {
+      "message": "自定义"
+   },
+   "searchEngineGoogle": {
+      "message": "谷歌"
+   },
+   "searchFor": {
+      "message": "搜索"
+   },
+   "searchInstructions": {
+      "message": "选中文本后，右键菜单中会显示搜索选项"
+   },
+   "searchRequireVip": {
+      "message": "您需要升级到Pro版本才能使用搜索功能。"
+   },
+   "settingsTab": {
+      "description": "设置标签页名称",
+      "message": "设置"
+   },
+   "targetLanguage": {
+      "message": "目标语言"
+   },
+   "targetLanguageAuto": {
+      "message": "自动检测"
+   },
+   "textSearchSettingsUpdated": {
+      "message": "文本搜索设置已更新"
+   },
+   "textSelectionSearch": {
+      "message": "搜索设置"
+   },
+   "textTranslation": {
+      "message": "文本翻译"
+   },
+   "translateEngine": {
+      "message": "默认翻译引擎"
+   },
+   "translateEngineBaidu": {
+      "message": "百度翻译"
+   },
+   "translateEngineBing": {
+      "message": "必应翻译"
+   },
+   "translateEngineCustom": {
+      "message": "自定义"
+   },
+   "translateEngineDeepL": {
+      "message": "DeepL翻译"
+   },
+   "translateInstructions": {
+      "message": "选中文本后，右键菜单中会显示翻译选项"
+   },
+   "translateRequireVip": {
+      "message": "您需要升级到Pro版本才能使用翻译功能。"
+   },
+   "translateSettingsUpdated": {
+      "message": "翻译设置已更新"
+   },
+   "translateText": {
+      "message": "翻译"
+   },
+   "triggerMethod": {
+      "description": "触发方式标签",
+      "message": "触发方式"
+   },
+   "upgradeDescription": {
+      "description": "Upgrade description text",
+      "message": "解锁搜索、翻译、无限预览和多窗口！"
+   },
+   "upgradeToPro": {
+      "description": "升级到Pro按钮的文本",
+      "message": "升级到Pro"
+   },
+   "upgradeToProPopup": {
+      "description": "Upgrade to Pro button text",
+      "message": "升级到 Pro"
+   },
+   "upgradeToVip": {
+      "description": "Upgrade to VIP membership button",
+      "message": "升级到VIP会员"
+   },
+   "userEmail": {
+      "description": "邮箱账号标签",
+      "message": "邮箱账号"
+   },
+   "userSettings": {
+      "description": "用户设置区域标题",
+      "message": "用户设置"
+   },
+   "videoMode": {
+      "message": "视频模式"
+   },
+   "videoModeFailed": {
+      "message": "视频加载失败，请重试或在新标签页中打开。"
+   },
+   "videoModeUnavailable": {
+      "message": "此链接不支持视频模式"
+   }
+}
