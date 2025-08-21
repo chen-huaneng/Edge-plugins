@@ -922,63 +922,6 @@ input:checked + .toggle-slider:before {
   margin-bottom: 20px;
 }
 
-/* 用户邮箱设置样式 */
-.styled-button {
-  background-color: #4285f4;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.styled-button:hover {
-  background-color: #3367d6;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* 升级按钮区域 */
-.upgrade-section {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #fff3e0; /* Light orange background */
-  border: 1px solid #ffe0b2; /* Lighter orange border */
-  border-radius: 6px;
-  text-align: center;
-}
-
-.upgrade-button {
-  background-color: #fb8c00; /* Orange button */
-  color: white;
-  width: 100%;
-  padding: 10px 15px;
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  transition: background-color 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.upgrade-button:hover {
-  background-color: #ef6c00; /* Darker orange */
-}
-
-.upgrade-section .settings-description {
-  color: #e65100; /* Dark orange text */
-  font-size: 13px;
-  margin-top: 0;
-}
-
 .blacklist-container {
   margin-top: 10px;
   width: 100%;

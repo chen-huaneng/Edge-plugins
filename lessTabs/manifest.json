@@ -13,7 +13,7 @@
    "content_scripts": [ {
       "all_frames": true,
       "css": [ "styles.css" ],
-      "js": [ "Readability.js", "content.js" ],
+      "js": [ "content.js" ],
       "matches": [ "\u003Call_urls>" ]
    } ],
    "default_locale": "zh_CN",

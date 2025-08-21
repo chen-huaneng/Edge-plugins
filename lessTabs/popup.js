@@ -28,11 +28,6 @@ document.addEventListener('DOMContentLoaded', function() {
   loadTextSearchSettings();
   // 初始化选中文本搜索设置
   initTextSearchSettings();
-  
-  // 加载翻译设置
-  loadTranslateSettings();
-  // 初始化翻译设置
-  initTranslateSettings();
 });
 
 // 显示通知
@@ -370,34 +365,8 @@ function initLanguageSelect() {
       // 重新加载所有文本
       reloadAllI18nText(selectedLanguage);
       
-      // 根据新语言设置更新翻译目标语言
-      updateTranslateLanguage(selectedLanguage);
-      
       // 显示通知
       showNotification(getMessage('languageUpdated'), 'success');
-    });
-  }
-  
-  // 更新翻译目标语言
-  function updateTranslateLanguage(language) {
-    // 获取映射的语言代码或保持默认英语
-    const targetLang = langMap[language] || 'en';
-    
-    // 更新翻译设置
-    chrome.storage.local.get(['translateSettings'], function(result) {
-      if (result.translateSettings) {
-        const settings = result.translateSettings;
-        settings.targetLanguage = targetLang;
-        
-        // 更新UI
-        const targetLanguageSelect = document.getElementById('targetLanguage');
-        if (targetLanguageSelect) {
-          targetLanguageSelect.value = targetLang;
-        }
-        
-        // 保存设置
-        chrome.storage.local.set({ translateSettings: settings });
-      }
     });
   }
   
@@ -501,7 +470,6 @@ function loadTextSearchSettings() {
         customSearchUrl: '',
         dragTextAction: 'search', // 默认搜索
         dragUrlAutoOpen: true, // 默认启用自动打开链接
-        dragLeftAction: 'translate', // 默认左拖翻译
         dragRightAction: 'search' // 默认右拖搜索
       };
       
@@ -585,115 +553,6 @@ function initTextSearchSettings() {
   
   // 处理自定义搜索URL变更
   customSearchUrlInput.addEventListener('change', saveTextSearchSettings);
-}
-
-// 加载翻译设置
-function loadTranslateSettings() {
-  chrome.storage.local.get(['translateSettings', 'language'], function(result) {
-    // 根据当前语言设置适合的目标语言代码
-    let defaultTargetLang = 'en'; // 默认英语
-    
-    // 如果存在语言设置，根据当前插件语言决定翻译目标语言
-    if (result.language) {
-      // 将插件语言转换为翻译目标语言代码
-
-      // 获取映射的语言代码或保持默认英语
-      defaultTargetLang = langMap[result.language] || 'en';
-    }
-    
-    if (result.translateSettings) {
-      const settings = result.translateSettings;
-      
-      // 应用加载的设置到UI
-      document.getElementById('translateEngine').value = settings.translateEngine;
-      
-      // 如果没有设置目标语言或为自动，使用基于插件语言的默认值
-      let targetLang = settings.targetLanguage;
-      if (!targetLang || targetLang === 'auto') {
-        targetLang = defaultTargetLang;
-        
-        // 更新设置
-        settings.targetLanguage = targetLang;
-        chrome.storage.local.set({ translateSettings: settings });
-      }
-      
-      // 设置目标语言下拉框
-      document.getElementById('targetLanguage').value = targetLang;
-      
-      if (settings.customTranslateUrl) {
-        document.getElementById('customTranslateUrl').value = settings.customTranslateUrl;
-      }
-      
-      // 如果选择了自定义翻译引擎，显示自定义URL输入框
-      if (settings.translateEngine === 'custom') {
-        document.getElementById('customTranslateContainer').style.display = 'block';
-      }
-    } else {
-      // 默认设置
-      const defaultSettings = {
-        enabled: true,
-        translateEngine: 'bing',
-        targetLanguage: defaultTargetLang, // 使用基于当前插件语言的目标语言
-        customTranslateUrl: ''
-      };
-      
-      // 应用默认设置到UI
-      document.getElementById('targetLanguage').value = defaultTargetLang;
-      
-      // 保存默认设置
-      chrome.storage.local.set({ translateSettings: defaultSettings });
-    }
-  });
-}
-
-// 初始化翻译设置
-function initTranslateSettings() {
-  const translateEngineSelect = document.getElementById('translateEngine');
-  const targetLanguageSelect = document.getElementById('targetLanguage');
-  const customTranslateUrlInput = document.getElementById('customTranslateUrl');
-  const customTranslateContainer = document.getElementById('customTranslateContainer');
-  
-  // 保存设置的函数
-  function saveTranslateSettings() {
-    const settings = {
-      enabled: true,
-      translateEngine: translateEngineSelect.value,
-      targetLanguage: targetLanguageSelect.value,
-      customTranslateUrl: customTranslateUrlInput.value
-    };
-    
-    // 保存到存储
-    chrome.storage.local.set({ translateSettings: settings }, function() {
-      // 通知content script
-      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        if (tabs && tabs[0] && tabs[0].id) {
-          chrome.tabs.sendMessage(tabs[0].id, {
-            action: 'updateTranslateSettings',
-            settings: settings
-          });
-        }
-      });
-      showNotification(getMessage('translateSettingsUpdated') || '翻译设置已更新', 'success');
-    });
-  }
-  
-  // 处理翻译引擎选择变更
-  translateEngineSelect.addEventListener('change', function() {
-    // 如果选择了自定义翻译引擎，显示自定义URL输入框
-    if (this.value === 'custom') {
-      customTranslateContainer.style.display = 'block';
-    } else {
-      customTranslateContainer.style.display = 'none';
-    }
-    
-    saveTranslateSettings();
-  });
-  
-  // 处理目标语言变更
-  targetLanguageSelect.addEventListener('change', saveTranslateSettings);
-  
-  // 处理自定义翻译URL变更
-  customTranslateUrlInput.addEventListener('change', saveTranslateSettings);
 }
 
 // 初始化主题选择器

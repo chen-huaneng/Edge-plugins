@@ -154,33 +154,6 @@
   color: #888;
 }
 
-/* 次数限制弹窗样式 */
-.NoTab-limit-reached-tooltip {
-  height: auto !important; /* 让高度自适应内容 */
-}
-
-.NoTab-limit-reached-body {
-  display: flex;
-  flex-direction: column; /* 垂直排列 */
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  text-align: center;
-}
-
-.NoTab-limit-icon {
-  margin-bottom: 15px; /* 图标和消息之间的间距 */
-  color: orange; /* 设置图标颜色 */
-}
-
-.NoTab-limit-message p {
-  margin-bottom: 20px; /* 消息和按钮之间的间距 */
-  font-size: 14px;
-  line-height: 1.6;
-  color: #333; /* 深灰色文本 */
-  max-width: 280px; /* 限制文本宽度以改善布局 */
-}
-
 .NoTab-upgrade-button {
   padding: 10px 24px; /* 调整按钮内边距 */
   background-color: orange; /* 橙色背景 */

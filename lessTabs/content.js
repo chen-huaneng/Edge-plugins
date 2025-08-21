@@ -285,13 +285,6 @@ async function init() {
   // 设置事件监听器
   setupEventListeners();
 
-  // 获取VIP状态
-  try {
-    await fetchVipStatus();
-  } catch (error) {
-    console.error('[NoTab] 获取VIP状态时发生错误:', error);
-  }
-
   // 添加链接预览样式 - 更新样式规则
   const linkTooltipStyle = document.createElement('style');
   linkTooltipStyle.textContent = `
@@ -492,11 +485,6 @@ async function init() {
       -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='23 4 23 10 17 10'%3E%3C/polyline%3E%3Cpath d='M20.49 15a9 9 0 1 1-2.12-9.36L23 10'%3E%3C/path%3E%3C/svg%3E");
     }
 
-    .NoTab-link-tooltip-reader-mode {
-      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 3H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-1'%3E%3C/path%3E%3Cpath d='M10 3a2 2 0 1 1 4 0 2 2 0 0 1-4 0z'%3E%3C/path%3E%3Cline x1='8' y1='10' x2='17' y2='10'%3E%3C/line%3E%3Cline x1='8' y1='14' x2='17' y2='14'%3E%3C/line%3E%3Cline x1='8' y1='18' x2='12' y2='18'%3E%3C/line%3E%3C/svg%3E");
-      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 3H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-1'%3E%3C/path%3E%3Cpath d='M10 3a2 2 0 1 1 4 0 2 2 0 0 1-4 0z'%3E%3C/path%3E%3Cline x1='8' y1='10' x2='17' y2='10'%3E%3C/line%3E%3Cline x1='8' y1='14' x2='17' y2='14'%3E%3C/line%3E%3Cline x1='8' y1='18' x2='12' y2='18'%3E%3C/line%3E%3C/svg%3E");
-    }
-
     .NoTab-link-tooltip-open {
       mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'%3E%3C/path%3E%3Cpolyline points='15 3 21 3 21 9'%3E%3C/polyline%3E%3Cline x1='10' y1='14' x2='21' y2='3'%3E%3C/line%3E%3C/svg%3E");
       -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'%3E%3C/path%3E%3Cpolyline points='15 3 21 3 21 9'%3E%3C/polyline%3E%3Cline x1='10' y1='14' x2='21' y2='3'%3E%3C/line%3E%3C/svg%3E");
@@ -577,17 +565,6 @@ async function init() {
       background: #fff;
     }
 
-    .NoTab-link-tooltip-reader-container {
-      flex: 1;
-      position: relative;
-      padding: 0;
-      background: var(--tooltip-bg);
-      min-height: 0;
-      border-radius: 0 0 12px 12px;
-      overflow-y: auto;
-      display: none;
-    }
-
     .NoTab-link-tooltip-video-container { /* 新增视频播放器容器样式 */
       flex: 1;
       position: relative;
@@ -604,116 +581,6 @@ async function init() {
       border: none;
       background: #000; /* 视频背景通常为黑色 */
     }
-
-    .NoTab-reader-content {
-      max-width: 720px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 1rem 2rem;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-      line-height: 1.6;
-      color: var(--tooltip-text);
-      background-color: var(--tooltip-bg);
-    }
-
-    .NoTab-reader-content h1 { 
-      font-size: 1.75em;
-      margin-top: 0;
-      margin-bottom: 0.8em;
-      line-height: 1.3;
-      font-weight: 600;
-    }
-
-    .NoTab-reader-content .byline {
-      font-style: italic;
-      color: var(--tooltip-summary-text);
-      margin-bottom: 1.5em;
-    }
-
-    .NoTab-reader-content h2, 
-    .NoTab-reader-content h3 {
-      line-height: 1.3;
-      margin-top: 1.5em;
-      margin-bottom: 0.8em;
-      font-weight: 600;
-    }
-
-    .NoTab-reader-content h1 {
-      font-size: 1.75em;
-    }
-
-    .NoTab-reader-content h2 {
-      font-size: 1.4em;
-    }
-
-    .NoTab-reader-content h3 {
-      font-size: 1.2em;
-    }
-
-    .NoTab-reader-content p {
-      margin-bottom: 1em;
-    }
-
-    .NoTab-reader-content img {
-      max-width: 100%;
-      height: auto;
-      margin: 1em 0;
-    }
-
-    .NoTab-reader-content a {
-      color: var(--tooltip-action-active-bg);
-      text-decoration: none;
-    }
-
-    .NoTab-reader-content a:hover {
-      text-decoration: underline;
-    }
-
-    .NoTab-reader-content blockquote {
-      border-left: 3px solid var(--tooltip-border);
-      margin-left: 0;
-      padding-left: 1em;
-      color: var(--tooltip-summary-text);
-    }
-
-    .NoTab-reader-content code, 
-    .NoTab-reader-content pre {
-      background-color: var(--tooltip-summary-bg);
-      border-radius: 3px;
-      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
-    }
-
-    .NoTab-reader-content code {
-      padding: 0.2em 0.4em;
-      font-size: 0.9em;
-    }
-
-    .NoTab-reader-content pre {
-      padding: 1em;
-      overflow-x: auto;
-    }
-
-    /* 移除媒体查询，改为使用CSS变量自适应深色模式 */
-    /* @media (prefers-color-scheme: dark) {
-      .NoTab-reader-content {
-        color: #eee;
-        background-color: #222;
-      }
-      
-      .NoTab-reader-content a {
-        color: #61afef;
-      }
-      
-      .NoTab-reader-content blockquote {
-        border-left-color: #444;
-        color: #aaa;
-      }
-      
-      .NoTab-reader-content code, 
-      .NoTab-reader-content pre {
-        background-color: #2c2c2c;
-      }
-    } */
 
     .NoTab-link-tooltip-loading {
       position: absolute;
@@ -1260,11 +1127,6 @@ async function init() {
       -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='23 4 23 10 17 10'%3E%3C/polyline%3E%3Cpath d='M20.49 15a9 9 0 1 1-2.12-9.36L23 10'%3E%3C/path%3E%3C/svg%3E");
     }
 
-    .NoTab-link-tooltip-reader-mode {
-      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 3H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-1'%3E%3C/path%3E%3Cpath d='M10 3a2 2 0 1 1 4 0 2 2 0 0 1-4 0z'%3E%3C/path%3E%3Cline x1='8' y1='10' x2='17' y2='10'%3E%3C/line%3E%3Cline x1='8' y1='14' x2='17' y2='14'%3E%3C/line%3E%3Cline x1='8' y1='18' x2='12' y2='18'%3E%3C/line%3E%3C/svg%3E");
-      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 3H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-1'%3E%3C/path%3E%3Cpath d='M10 3a2 2 0 1 1 4 0 2 2 0 0 1-4 0z'%3E%3C/path%3E%3Cline x1='8' y1='10' x2='17' y2='10'%3E%3C/line%3E%3Cline x1='8' y1='14' x2='17' y2='14'%3E%3C/line%3E%3Cline x1='8' y1='18' x2='12' y2='18'%3E%3C/line%3E%3C/svg%3E");
-    }
-
     .NoTab-link-tooltip-open {
       mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'%3E%3C/path%3E%3Cpolyline points='15 3 21 3 21 9'%3E%3C/polyline%3E%3Cline x1='10' y1='14' x2='21' y2='3'%3E%3C/line%3E%3C/svg%3E");
       -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'%3E%3C/path%3E%3Cpolyline points='15 3 21 3 21 9'%3E%3C/polyline%3E%3Cline x1='10' y1='14' x2='21' y2='3'%3E%3C/line%3E%3C/svg%3E");
@@ -1406,17 +1268,6 @@ async function init() {
       height: 100%;
       border: none;
       background: var(--tooltip-bg); /* Use variable */
-    }
-
-    .NoTab-link-tooltip-reader-container {
-      flex: 1;
-      position: relative;
-      padding: 0;
-      background: var(--tooltip-bg);
-      min-height: 0;
-      border-radius: 0 0 12px 12px;
-      overflow-y: auto;
-      display: none;
     }
 
     .NoTab-link-tooltip-video-container { /* 新增视频播放器容器样式 */
@@ -1761,31 +1612,6 @@ function setupEventListeners() {
         sendResponse({ success: false, message: '没有选中文本' });
       }
       return true;
-    } else if (request.action === 'checkVipStatus') {
-      // 处理检查VIP状态请求
-      if (request.email) {
-        // console.log('[NoTab] 接收到检查VIP状态请求，邮箱:', request.email);
-        // 调用fetchVipStatus检查VIP状态
-        fetchVipStatus().then(() => {
-          // 发送状态回popup
-          sendResponse({
-            success: true,
-            isVip: isCurrentUserVip
-          });
-        }).catch(error => {
-          console.error('[NoTab] 检查VIP状态失败:', error);
-          sendResponse({
-            success: false,
-            message: '检查VIP状态失败'
-          });
-        });
-      } else {
-        sendResponse({
-          success: false,
-          message: '未提供邮箱'
-        });
-      }
-      return true; // 保持通道开放以进行异步响应
     } else if (request.action === 'updateVipStatus') {
       // 处理来自popup的VIP状态更新
       // console.log('[NoTab] 接收到VIP状态更新:', request.isVip);
@@ -2509,7 +2335,6 @@ async function showLinkSummary(event, link, errorTip = undefined) {
         <div class="NoTab-link-tooltip-actions">
           ${remainingPreviewsHTML}
           <button class="NoTab-link-tooltip-action NoTab-link-tooltip-video-mode ${videoPlayUrl ? '' : 'disabled'}" title="${videoPlayUrl ? videoButtonTitle : videoButtonDisabledTitle}"></button>
-          <button class="NoTab-link-tooltip-action NoTab-link-tooltip-reader-mode disabled" title="${getMessage('readerModeUnavailable')}"></button>
           <button class="NoTab-link-tooltip-action NoTab-link-tooltip-pin" title="${getMessage('pinPreview')}"></button>
           <button class="NoTab-link-tooltip-action NoTab-link-tooltip-refresh" title="${getMessage('refresh')}"></button>
           <button class="NoTab-link-tooltip-action NoTab-link-tooltip-open" title="${getMessage('openInNewWindow')}"></button>
@@ -2520,9 +2345,6 @@ async function showLinkSummary(event, link, errorTip = undefined) {
       <div class="NoTab-link-tooltip-body">
         <div class="NoTab-link-tooltip-iframe-container">
           <iframe class="NoTab-link-tooltip-iframe" src="${handledUrl}" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms allow-downloads allow-orientation-lock allow-pointer-lock allow-presentation allow-modals"></iframe>
-        </div>
-        <div class="NoTab-link-tooltip-reader-container" style="display: none">
-          <div class="NoTab-reader-content"></div>
         </div>
         <div class="NoTab-link-tooltip-video-container" style="display: none"> <!-- 新增视频容器 -->
           <iframe class="NoTab-link-tooltip-video-iframe" frameborder="0" allowfullscreen referrerpolicy="no-referrer" title="视频播放器" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms allow-downloads allow-orientation-lock allow-pointer-lock allow-presentation allow-modals"></iframe>
@@ -2630,12 +2452,9 @@ async function showLinkSummary(event, link, errorTip = undefined) {
   if (previewStatus.canPreview || isCurrentUserVip) { // 修改这里
     const openBtn = tooltip.querySelector('.NoTab-link-tooltip-open');
     const refreshBtn = tooltip.querySelector('.NoTab-link-tooltip-refresh');
-    const readerModeBtn = tooltip.querySelector('.NoTab-link-tooltip-reader-mode');
     const pinBtn = tooltip.querySelector('.NoTab-link-tooltip-pin');
     const iframe = tooltip.querySelector('.NoTab-link-tooltip-iframe');
     const iframeContainer = tooltip.querySelector('.NoTab-link-tooltip-iframe-container');
-    const readerContainer = tooltip.querySelector('.NoTab-link-tooltip-reader-container');
-    const readerContent = tooltip.querySelector('.NoTab-reader-content');
     const progressBar = tooltip.querySelector('.NoTab-link-tooltip-progress');
     const dragHandle = tooltip.querySelector('#drag-handle');
     const resizeHandleSE = tooltip.querySelector('.NoTab-resize-se'); // 右下角
@@ -2647,37 +2466,11 @@ async function showLinkSummary(event, link, errorTip = undefined) {
     const videoIframe = tooltip.querySelector('.NoTab-link-tooltip-video-iframe');
 
     // 阅读模式状态
-    let isReaderMode = false;
     let hasProcessedContent = false;
     // 新增：视频模式状态 (isVideoMode 已在函数开头定义)
 
     // 显示进度条动画
     progressBar.classList.add('notab-loading');
-
-    // 阅读模式切换函数
-    function toggleReaderMode() {
-      if (readerModeBtn.classList.contains('disabled')) return;
-      isReaderMode = !isReaderMode;
-
-      if (isReaderMode) { // Entering Reader Mode
-        isVideoMode = false; // Ensure video mode is off
-        if (videoModeBtn) videoModeBtn.classList.remove('active');
-        videoContainer.style.display = 'none';
-        if (videoIframe) videoIframe.src = 'about:blank'; // Stop video iframe playback
-        if (iframe) iframe.src = 'about:blank'; // Stop standard iframe playback
-      } else { // Exiting Reader Mode
-        // If not switching to video mode, restore standard iframe
-        if (!isVideoMode && iframe) {
-          iframe.src = tooltip.dataset.handledUrl; // Reload original content from dataset
-          progressBar.classList.add('notab-loading');
-        }
-      }
-
-      readerModeBtn.classList.toggle('active', isReaderMode);
-      iframeContainer.style.display = !isVideoMode && !isReaderMode ? 'block' : 'none';
-      readerContainer.style.display = isReaderMode ? 'block' : 'none';
-      videoContainer.style.display = isVideoMode ? 'block' : 'none';
-    }
 
     // 新增：视频模式切换函数
     function toggleVideoMode() {
@@ -2685,9 +2478,6 @@ async function showLinkSummary(event, link, errorTip = undefined) {
       isVideoMode = !isVideoMode;
 
       if (isVideoMode) { // Entering Video Mode
-        isReaderMode = false; // Ensure reader mode is off
-        readerModeBtn.classList.remove('active');
-        readerContainer.style.display = 'none';
 
         if (iframe) iframe.src = 'about:blank'; // Stop standard iframe playback
 
@@ -2697,20 +2487,18 @@ async function showLinkSummary(event, link, errorTip = undefined) {
         }
       } else { // Exiting Video Mode
         if (videoIframe) videoIframe.src = 'about:blank'; // Stop video iframe playback
-        // If not switching to reader mode, restore standard iframe
-        if (!isReaderMode && iframe) {
+        // restore standard iframe
+        if (iframe) {
           iframe.src = tooltip.dataset.handledUrl; // Reload original content from dataset
           progressBar.classList.add('notab-loading');
         }
       }
 
       videoModeBtn.classList.toggle('active', isVideoMode);
-      iframeContainer.style.display = !isVideoMode && !isReaderMode ? 'block' : 'none';
-      readerContainer.style.display = isReaderMode ? 'block' : 'none';
+      iframeContainer.style.display = !isVideoMode ? 'block' : 'none';
       videoContainer.style.display = isVideoMode ? 'block' : 'none';
     }
 
-    readerModeBtn.addEventListener('click', toggleReaderMode);
     if (videoModeBtn) videoModeBtn.addEventListener('click', toggleVideoMode); // 添加视频模式按钮事件
 
     openBtn.addEventListener('click', () => {
@@ -2756,7 +2544,6 @@ async function showLinkSummary(event, link, errorTip = undefined) {
         // console.log('[NoTab] 无法获取iframe URL (跨域限制):', e.message);
       }
       
-      checkReaderModeAvailability();
       iframe.removeEventListener('load', loadCallback);
     }
 
@@ -2786,38 +2573,6 @@ async function showLinkSummary(event, link, errorTip = undefined) {
                 progressBar.classList.add('notab-loading');
             }
         });
-    }
-
-    function checkReaderModeAvailability() {
-      try {
-        if (!iframe.contentDocument || !iframe.contentWindow) {
-          disableReaderMode(getMessage('readerModeError'));
-          return;
-        }
-        const testDoc = iframe.contentDocument.cloneNode(true);
-        const testReader = new Readability(testDoc);
-        const article = testReader.parse();
-        if (!article || !article.content || article.content.trim() === '') {
-          disableReaderMode(getMessage('readerModeError'));
-          return;
-        }
-        readerModeBtn.classList.remove('disabled');
-        readerModeBtn.title = getMessage('readerMode');
-        if (!hasProcessedContent) {
-          const articleHTML = `<h1>${article.title}</h1>${article.byline ? `<p class="byline">${article.byline}</p>` : ''}${article.content}`;
-          readerContent.innerHTML = articleHTML;
-          hasProcessedContent = true;
-        }
-      } catch (e) {
-        console.error('检测阅读模式可用性时出错:', e);
-        disableReaderMode(getMessage('readerModeError') + ": " + e.message);
-      }
-    }
-
-    function disableReaderMode(reason) {
-      readerModeBtn.classList.add('disabled');
-      readerModeBtn.title = reason || getMessage('readerModeUnavailable');
-      readerModeBtn.removeEventListener('click', toggleReaderMode);
     }
 
     pinBtn.addEventListener('click', (e) => {
@@ -3350,14 +3105,12 @@ function updateAllUITexts() {
       const refreshBtn = preview.querySelector('.NoTab-link-tooltip-refresh');
       const openBtn = preview.querySelector('.NoTab-link-tooltip-open');
       const closeBtn = preview.querySelector('.NoTab-link-tooltip-close');
-      const readerModeBtn = preview.querySelector('.NoTab-link-tooltip-reader-mode');
       const videoModeBtn = preview.querySelector('.NoTab-link-tooltip-video-mode'); // 新增视频模式按钮
 
       if (pinBtn) pinBtn.title = getMessage('pinPreview') || '固定预览';
       if (refreshBtn) refreshBtn.title = getMessage('refresh') || '刷新';
       if (openBtn) openBtn.title = getMessage('openInNewWindow') || '新窗口打开';
       if (closeBtn) closeBtn.title = getMessage('close') || '关闭';
-      if (readerModeBtn && !readerModeBtn.classList.contains('disabled')) readerModeBtn.title = getMessage('readerMode') || '阅读模式';
       if (videoModeBtn && !videoModeBtn.classList.contains('disabled')) videoModeBtn.title = getMessage('videoMode') || '视频模式'; // 新增视频模式按钮标题
       if (videoModeBtn && videoModeBtn.classList.contains('disabled')) videoModeBtn.title = getMessage('videoModeUnavailable') || '视频模式不可用';
     });

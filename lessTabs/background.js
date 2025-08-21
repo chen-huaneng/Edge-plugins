@@ -17,9 +17,6 @@ chrome.runtime.onInstalled.addListener((details) => {
     }
   });
   
-  // 创建右键菜单
-  createContextMenus();
-  
   // 设置动态规则来移除阻止iframe加载的响应头
   chrome.declarativeNetRequest.getDynamicRules((rules) => {
     // 获取现有规则ID
@@ -58,26 +55,6 @@ chrome.runtime.onInstalled.addListener((details) => {
             resourceTypes: ["sub_frame"]
           }
         },
-        // // 设置移动端User-Agent
-        // {
-        //   id: 2,
-        //   priority: 2,
-        //   action: {
-        //     type: "modifyHeaders",
-        //     requestHeaders: [
-        //       {
-        //         header: "User-Agent",
-        //         operation: "set",
-        //         value: "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1"
-        //       }
-        //     ]
-        //   },
-        //   condition: {
-        //     urlFilter: "*://*/*",
-        //     resourceTypes: ["sub_frame"]
-        //   }
-        // },
-        // 特定网站使用桌面User-Agent
         {
           id: 2,
           priority: 2,
@@ -106,134 +83,12 @@ chrome.runtime.onInstalled.addListener((details) => {
   }
 });
 
-// 创建右键菜单
-function createContextMenus() {
-  // 移除现有菜单
-  chrome.contextMenus.removeAll(function() {
-    // 获取当前语言
-    chrome.storage.local.get(['language'], function(result) {
-      const currentLanguage = result.language || 'en';
-      
-      // 加载当前语言的文本
-      loadMenuText(currentLanguage, function(menuText) {
-        // 创建选中文本搜索菜单
-        chrome.contextMenus.create({
-          id: "searchSelectedText",
-          title: `${menuText.searchText}: %s`,
-          contexts: ["selection"],
-        });
-        
-        // 创建选中文本翻译菜单
-        chrome.contextMenus.create({
-          id: "translateSelectedText",
-          title: `${menuText.translateText}: %s`,
-          contexts: ["selection"],
-        });
-        
-        // console.log('[NoTab Background] 右键菜单已创建');
-      });
-    });
-  });
-}
-
-// 加载菜单文本
-function loadMenuText(language, callback) {
-  // 默认文本
-  let menuText = {
-    searchText: "搜索",
-    translateText: "翻译"
-  };
-  
-  // 从语言文件加载文本
-  fetch(chrome.runtime.getURL(`_locales/${language}/messages.json`))
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`无法加载语言文件: ${language}`);
-      }
-      return response.json();
-    })
-    .then(messages => {
-      if (messages.searchFor && messages.searchFor.message) {
-        menuText.searchText = messages.searchFor.message;
-      }
-      
-      if (messages.translateText && messages.translateText.message) {
-        menuText.translateText = messages.translateText.message;
-      }
-      
-      callback(menuText);
-    })
-    .catch(error => {
-      console.error('[NoTab Background] 加载菜单文本失败:', error);
-      
-      // 如果不是英语，尝试加载英语
-      if (language !== 'en') {
-        fetch(chrome.runtime.getURL('_locales/en/messages.json'))
-          .then(response => response.json())
-          .then(messages => {
-            if (messages.searchFor && messages.searchFor.message) {
-              menuText.searchText = messages.searchFor.message;
-            }
-            
-            if (messages.translateText && messages.translateText.message) {
-              menuText.translateText = messages.translateText.message;
-            }
-            
-            callback(menuText);
-          })
-          .catch(err => {
-            // 如果英语也失败，使用默认文本
-            callback(menuText);
-          });
-      } else {
-        // 如果是英语加载失败，使用默认文本
-        callback(menuText);
-      }
-    });
-}
-
-// 处理右键菜单点击事件
-chrome.contextMenus.onClicked.addListener(function(info, tab) {
-  if (info.menuItemId === "searchSelectedText") {
-    // 获取选中文本搜索设置
-    chrome.storage.local.get(['textSearchSettings'], function(result) {
-      const settings = result.textSearchSettings || {
-        enabled: true,
-        searchEngine: 'google'
-      };
-      
-      // 向当前标签页的content script发送消息，执行搜索
-      chrome.tabs.sendMessage(tab.id, {
-        action: 'searchSelectedText',
-        selectedText: info.selectionText
-      });
-    });
-  } else if (info.menuItemId === "translateSelectedText") {
-    // 获取翻译设置
-    chrome.storage.local.get(['translateSettings'], function(result) {
-      const settings = result.translateSettings || {
-        enabled: true,
-        translateEngine: 'bing'
-      };
-      
-      // 向当前标签页的content script发送消息，执行翻译
-      chrome.tabs.sendMessage(tab.id, {
-        action: 'translateSelectedText',
-        selectedText: info.selectionText
-      });
-    });
-  }
-});
-
 // Listen for messages from content script
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   // console.log('[NoTab Background] 收到消息:', request);
   
   if (request.action === 'languageChanged') {
     // console.log('[NoTab Background] 语言已更改为:', request.language);
-    
-    // 更新右键菜单文本
-    updateContextMenuTitle(request.language);
     
     // 保存语言设置到本地存储
     chrome.storage.local.set({ language: request.language }, function() {
@@ -255,50 +110,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       sendResponse({ success: true });
     });
     
-    return true;
-  }
-
-  // 更新右键菜单
-  if (request.action === 'updateTextSearchSettings') {
-    if (request.settings) {
-      // console.log('[NoTab Background] 更新选中文本搜索设置:', request.settings);
-      
-      // 确保右键菜单存在
-      chrome.contextMenus.create({
-        id: "searchSelectedText",
-        title: "搜索: %s",
-        contexts: ["selection"],
-      }, function() {
-        if (chrome.runtime.lastError) {
-          // 菜单可能已存在，忽略错误
-          // console.log('[NoTab Background] 右键菜单已存在');
-        }
-      });
-      
-      sendResponse({ success: true });
-    }
-    return true;
-  }
-  
-  // 更新翻译设置
-  if (request.action === 'updateTranslateSettings') {
-    if (request.settings) {
-      // console.log('[NoTab Background] 更新翻译设置:', request.settings);
-      
-      // 确保翻译菜单存在
-      chrome.contextMenus.create({
-        id: "translateSelectedText",
-        title: "翻译: %s",
-        contexts: ["selection"],
-      }, function() {
-        if (chrome.runtime.lastError) {
-          // 菜单可能已存在，忽略错误
-          // console.log('[NoTab Background] 翻译菜单已存在');
-        }
-      });
-      
-      sendResponse({ success: true });
-    }
     return true;
   }
 
@@ -341,28 +152,3 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
   return true;
 });
-
-// 更新右键菜单标题为当前语言
-function updateContextMenuTitle(language) {
-  loadMenuText(language, function(menuText) {
-    // 更新搜索菜单标题
-    chrome.contextMenus.update("searchSelectedText", {
-      title: `${menuText.searchText}: %s`
-    }, function() {
-      if (chrome.runtime.lastError) {
-        // console.log('[NoTab Background] 更新搜索菜单标题失败:', chrome.runtime.lastError);
-        // 如果更新失败，可能菜单不存在，尝试重新创建
-        createContextMenus();
-      }
-    });
-    
-    // 更新翻译菜单标题
-    chrome.contextMenus.update("translateSelectedText", {
-      title: `${menuText.translateText}: %s`
-    }, function() {
-      if (chrome.runtime.lastError) {
-        // console.log('[NoTab Background] 更新翻译菜单标题失败:', chrome.runtime.lastError);
-      }
-    });
-  });
-}
