@@ -703,31 +703,6 @@ async function init() {
       border-radius: 0 0 12px 12px;
     }
 
-    /* 新增：剩余次数样式 */
-    .NoTab-remaining-previews {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 12px;
-      color: var(--tooltip-remaining-previews-text); /* Use variable */
-      background-color: var(--tooltip-remaining-previews-bg); /* Use variable */
-      padding: 3px 8px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background-color 0.2s, color 0.2s;
-      flex-shrink: 0; /* 防止被压缩 */
-      white-space: nowrap; /* 防止换行 */
-      margin-right: 6px; /* 添加右侧间距 */
-    }
-    .NoTab-remaining-previews:hover {
-      background-color: var(--tooltip-remaining-previews-hover-bg); /* Use variable */
-      color: var(--tooltip-remaining-previews-hover-text); /* Use variable */
-    }
-    .NoTab-preview-icon {
-      font-size: 14px; /* 图标大小 */
-      line-height: 1;
-    }
-
     .NoTab-long-press-loader {
       position: fixed;
       width: 36px; /* slightly larger than spinner */
@@ -1265,31 +1240,6 @@ async function init() {
       border-radius: 0 0 12px 12px;
     }
 
-    /* 新增：剩余次数样式 */
-    .NoTab-remaining-previews {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 12px;
-      color: var(--tooltip-remaining-previews-text); /* Use variable */
-      background-color: var(--tooltip-remaining-previews-bg); /* Use variable */
-      padding: 3px 8px;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: background-color 0.2s, color 0.2s;
-      flex-shrink: 0; /* 防止被压缩 */
-      white-space: nowrap; /* 防止换行 */
-      margin-right: 6px; /* 添加右侧间距 */
-    }
-    .NoTab-remaining-previews:hover {
-      background-color: var(--tooltip-remaining-previews-hover-bg); /* Use variable */
-      color: var(--tooltip-remaining-previews-hover-text); /* Use variable */
-    }
-    .NoTab-preview-icon {
-      font-size: 14px; /* 图标大小 */
-      line-height: 1;
-    }
-
     .NoTab-long-press-loader {
       position: fixed;
       width: 36px; /* slightly larger than spinner */
@@ -1405,16 +1355,6 @@ function setupEventListeners() {
       } else {
         sendResponse({ success: false, message: '未提供设置数据' });
       }
-    } else if (request.action === 'searchSelectedText') {
-      // 处理右键菜单搜索
-      const selectedText = request.selectedText || window.getSelection().toString().trim();
-      if (selectedText && selectedText.length > 0) {
-        searchSelectedText(selectedText);
-        sendResponse({ success: true });
-      } else {
-        sendResponse({ success: false, message: '没有选中文本' });
-      }
-      return true;
     } else if (request.action === 'updateLinkPreviewSettings') {
       // 更新设置
       linkPreviewSettings = request.settings;
@@ -2169,16 +2109,6 @@ async function showLinkSummary(event, link, errorTip = undefined) {
     }, 200);
   });
 
-  // 添加剩余次数元素的点击事件 (如果存在)
-  const remainingPreviewsEl = tooltip.querySelector('.NoTab-remaining-previews');
-  if (remainingPreviewsEl) {
-    remainingPreviewsEl.addEventListener('click', () => {
-      window.open('https://notab.pro/#pricing', '_blank');
-      // 可选：点击后关闭预览
-      // closeBtn.click();
-    });
-  }
-
   // 如果可以预览或用户是VIP，绑定其他事件
   if (previewStatus.canPreview || isCurrentUserVip) { // 修改这里
     const openBtn = tooltip.querySelector('.NoTab-link-tooltip-open');
@@ -2347,7 +2277,6 @@ async function showLinkSummary(event, link, errorTip = undefined) {
         animationFrameId = null;
       });
     }
-
           dragHandle.addEventListener('mousedown', (e) => {
         if (e.target.closest('button, a')) return;
         isDragging = true;
@@ -2635,43 +2564,6 @@ function getMessage(messageName) {
 
   // 否则，回退到chrome.i18n
   return chrome.i18n.getMessage(messageName);
-}
-
-// 加载指定语言的消息
-async function loadMessages(language) {
-  try {
-    // console.log('[NoTab] 加载语言消息:', language);
-
-    // 通过消息请求后台脚本获取语言文件
-    return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage({
-        action: 'getLanguageMessages',
-        language: language
-      }, function (response) {
-        if (response && response.messages) {
-          // console.log('[NoTab] 消息加载成功:', Object.keys(response.messages).length);
-          i18nMessages = response.messages;
-          resolve(true);
-        } else {
-          console.error('[NoTab] 消息加载失败:', response?.error || '未知错误');
-          // 如果加载失败且不是英语，尝试加载英语
-          if (language !== 'en') {
-            // console.log('[NoTab] 回退到英语');
-            loadMessages('en').then(resolve).catch(reject);
-          } else {
-            reject(new Error('无法加载任何语言文件'));
-          }
-        }
-      });
-    });
-  } catch (error) {
-    console.error('加载语言消息失败:', error);
-    // 如果加载失败且不是英语，尝试加载英语
-    if (language !== 'en') {
-      return loadMessages('en');
-    }
-    return false;
-  }
 }
 
 // 更新所有UI文本的辅助函数
