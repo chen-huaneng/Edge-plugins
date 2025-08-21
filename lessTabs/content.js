@@ -89,9 +89,8 @@ let linkPreviewSettings = {
   hoverDelay: 500, // 悬停触发延迟（毫秒）
   previewSize: 'medium', // 预览框大小，可选值：'small', 'medium', 'large', 'last'
   previewPosition: 'cursor', // 预览框位置，可选值：'cursor', 'left', 'center', 'right', 'last'
-  previewTheme: 'light', // Add this line: 'light', 'dark', 'gray'
+  previewTheme: 'dark', // Add this line: 'light', 'dark'
   overlayOpacity: 50, // 添加背景遮罩透明度设置，默认50%
-  blacklistSites: [], // Add this line: Blacklist sites
 };
 
 // 保存预览状态 - 添加防抖优化
@@ -160,12 +159,6 @@ async function init() {
 
   // 初始化 Shadow DOM
   initShadowDOM();
-
-  // 检查当前网站是否在黑名单中
-  if (isCurrentSiteBlacklisted()) {
-    // console.log('[NoTab] 当前网站在黑名单中，不启用链接预览');
-    return; // 直接退出初始化
-  }
 
   // 设置事件监听器
   setupEventListeners();
@@ -670,31 +663,6 @@ async function init() {
       --tooltip-remaining-previews-text: #ccc;
       --tooltip-remaining-previews-hover-bg: #555;
       --tooltip-remaining-previews-hover-text: #eee;
-    }
-
-    .NoTab-link-tooltip.theme-gray {
-      --tooltip-bg: #f0f0f0;
-      --tooltip-text: #333333;
-      --tooltip-header-bg: #e0e0e0;
-      --tooltip-header-text: #333333;
-      --tooltip-border: #cccccc;
-      --tooltip-link-bg: #ffffff;
-      --tooltip-link-border: #bbbbbb;
-      --tooltip-link-hover-border: #999999;
-      --tooltip-action-bg: #666666;
-      --tooltip-action-hover-bg: #222222;
-      --tooltip-action-active-bg: #007bff;
-      --tooltip-action-disabled-bg: #aaaaaa;
-      --tooltip-summary-bg: #e5e5e5;
-      --tooltip-summary-text: #333333;
-      --tooltip-loading-bg: rgba(240, 240, 240, 0.95);
-      --tooltip-loading-text: #555555;
-      --tooltip-resize-handle-border: rgba(0, 0, 0, 0.1);
-      --tooltip-resize-handle-hover-border: rgba(0, 0, 0, 0.2);
-      --tooltip-remaining-previews-bg: #ccc;
-      --tooltip-remaining-previews-text: #555;
-      --tooltip-remaining-previews-hover-bg: #bbb;
-      --tooltip-remaining-previews-hover-text: #333;
     }
 
     /* Update existing styles to use variables */
@@ -1285,7 +1253,7 @@ async function showLinkSummary(event, link, errorTip = undefined) {
 
   // 创建提示框
   const tooltip = document.createElement('div');
-  tooltip.className = `NoTab-link-tooltip theme-${linkPreviewSettings.previewTheme || 'light'}`; // Apply theme class
+  tooltip.className = `NoTab-link-tooltip theme-${linkPreviewSettings.previewTheme || 'dark'}`; // Apply theme class
   tooltip.dataset.linkUrl = link.href;
   tooltip.dataset.isPinned = 'false';
   tooltip.dataset.isInteracting = 'false'; // 初始化交互状态
@@ -1826,43 +1794,6 @@ function handleDocumentDragEnd(event) {
   isDragging = false;
 }
 
-// 检查当前网站是否在黑名单中
-function isCurrentSiteBlacklisted() {
-  if (!linkPreviewSettings || !linkPreviewSettings.blacklistSites || linkPreviewSettings.blacklistSites.length === 0) {
-    return false; // 没有黑名单或黑名单为空
-  }
-
-  // 获取当前网站的主机名
-  const currentHostname = window.location.hostname.toLowerCase();
-
-  // 检查是否包含在黑名单中（支持部分匹配）
-  return linkPreviewSettings.blacklistSites.some(site => {
-    const blacklistSite = site.trim().toLowerCase();
-
-    // 完全匹配
-    if (currentHostname === blacklistSite) {
-      return true;
-    }
-
-    // 子域名匹配
-    if (blacklistSite.startsWith('.') && currentHostname.endsWith(blacklistSite)) {
-      return true;
-    }
-
-    // 通配符匹配
-    if (blacklistSite.startsWith('*.') && currentHostname.endsWith(blacklistSite.substring(1))) {
-      return true;
-    }
-
-    // 直接包含匹配
-    if (currentHostname.includes(blacklistSite)) {
-      return true;
-    }
-
-    return false;
-  });
-}
-
 // 新增函数：处理 Esc 键按下事件以关闭预览窗口
 function handleDocumentKeyDownForClose(event) {
   if (event.key === 'Escape') {
@@ -1924,106 +1855,6 @@ function handleIframeMessages(event) {
         break;
     }
   }
-}
-
-// 在文件末尾添加以下函数
-
-// 辅助函数：调整颜色明度
-function adjustColor(color, amount) {
-  // 如果颜色是十六进制格式，转换为RGB
-  let r, g, b;
-  
-  if (color.startsWith('#')) {
-    // 处理六位十六进制颜色
-    if (color.length === 7) {
-      r = parseInt(color.substring(1, 3), 16);
-      g = parseInt(color.substring(3, 5), 16);
-      b = parseInt(color.substring(5, 7), 16);
-    } 
-    // 处理三位十六进制颜色
-    else if (color.length === 4) {
-      r = parseInt(color.substring(1, 2), 16) * 17;
-      g = parseInt(color.substring(2, 3), 16) * 17;
-      b = parseInt(color.substring(3, 4), 16) * 17;
-    }
-  } 
-  // 尝试处理rgb格式
-  else if (color.startsWith('rgb')) {
-    const matches = color.match(/\d+/g);
-    if (matches && matches.length >= 3) {
-      r = parseInt(matches[0]);
-      g = parseInt(matches[1]);
-      b = parseInt(matches[2]);
-    }
-  }
-  
-  // 默认值，以防解析失败
-  if (isNaN(r) || isNaN(g) || isNaN(b)) {
-    r = 128;
-    g = 128;
-    b = 128;
-  }
-  
-  // 调整RGB值
-  r = Math.max(0, Math.min(255, r + amount));
-  g = Math.max(0, Math.min(255, g + amount));
-  b = Math.max(0, Math.min(255, b + amount));
-  
-  // 转回十六进制
-  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-}
-
-// 辅助函数：生成强调色
-function generateAccentColor(bgColor, textColor) {
-  // 检查背景色是浅色还是深色
-  if (isLightColor(bgColor)) {
-    // 如果背景是浅色，使用蓝色调
-    return '#4285f4';
-  } else {
-    // 如果背景是深色，使用亮蓝色
-    return '#00aaff';
-  }
-}
-
-// 辅助函数：检查颜色是否是浅色
-function isLightColor(color) {
-  let r, g, b;
-  
-  if (color.startsWith('#')) {
-    // 处理六位十六进制颜色
-    if (color.length === 7) {
-      r = parseInt(color.substring(1, 3), 16);
-      g = parseInt(color.substring(3, 5), 16);
-      b = parseInt(color.substring(5, 7), 16);
-    } 
-    // 处理三位十六进制颜色
-    else if (color.length === 4) {
-      r = parseInt(color.substring(1, 2), 16) * 17;
-      g = parseInt(color.substring(2, 3), 16) * 17;
-      b = parseInt(color.substring(3, 4), 16) * 17;
-    }
-  } 
-  // 尝试处理rgb格式
-  else if (color.startsWith('rgb')) {
-    const matches = color.match(/\d+/g);
-    if (matches && matches.length >= 3) {
-      r = parseInt(matches[0]);
-      g = parseInt(matches[1]);
-      b = parseInt(matches[2]);
-    }
-  }
-  
-  // 默认值，以防解析失败
-  if (isNaN(r) || isNaN(g) || isNaN(b)) {
-    return true;
-  }
-  
-  // 计算颜色的亮度 (HSP色彩模型)
-  // http://alienryderflex.com/hsp.html
-  const hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b));
-  
-  // 亮度大于127.5视为浅色
-  return hsp > 127.5;
 }
 
 // 获取样式内容
