@@ -1,5 +1,11 @@
 // lessTabs Background Script
 
+// 监听插件图标的点击事件
+chrome.action.onClicked.addListener((tab) => {
+  // 切换侧边栏的显示状态
+  chrome.sidePanel.open({ windowId: tab.windowId });
+});
+
 // 安装或更新时设置declarativeNetRequest规则
 chrome.runtime.onInstalled.addListener((details) => {
   

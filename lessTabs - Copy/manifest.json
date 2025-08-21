@@ -26,6 +26,13 @@
    },
    "manifest_version": 3,
    "name": "lessTabs",
-   "permissions": [ "activeTab", "tabs", "declarativeNetRequest" ],
-   "version": "1.0.0"
+   "permissions": [ "storage", "activeTab", "tabs", "contextMenus", "sidePanel", "declarativeNetRequest" ],
+   "side_panel": {
+      "default_path": "popup.html"
+   },
+   "version": "1.0.0",
+   "web_accessible_resources": [ {
+      "matches": [ "\u003Call_urls>" ],
+      "resources": [ "popup.html", "popup.css", "popup.js", "_locales/*/*.json" ]
+   } ]
 }

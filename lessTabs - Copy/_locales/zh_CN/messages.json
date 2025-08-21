@@ -19,10 +19,6 @@
       "description": "取消按钮",
       "message": "取消"
    },
-   "checkingStatus": {
-      "description": "检查会员状态时的提示",
-      "message": "检查中..."
-   },
    "close": {
       "description": "Close button tooltip",
       "message": "关闭"
@@ -32,12 +28,6 @@
    },
    "customSearchUrl": {
       "message": "自定义搜索URL"
-   },
-   "customTranslateHelp": {
-      "message": "使用 %s 作为文本占位符，%tl 作为目标语言占位符"
-   },
-   "customTranslateUrl": {
-      "message": "自定义翻译URL"
    },
    "customTriggerKey": {
       "description": "自定义快捷键设置标签",
@@ -67,10 +57,6 @@
       "description": "左拖搜索选项",
       "message": "搜索"
    },
-   "dragLeftActionTranslate": {
-      "description": "左拖翻译选项",
-      "message": "翻译"
-   },
    "dragLink": {
       "description": "拖动链接选项",
       "message": "拖动链接"
@@ -78,14 +64,6 @@
    "dragRightAction": {
       "description": "右拖动作设置",
       "message": "右拖动作"
-   },
-   "dragRightActionSearch": {
-      "description": "右拖搜索选项",
-      "message": "搜索"
-   },
-   "dragRightActionTranslate": {
-      "description": "右拖翻译选项",
-      "message": "翻译"
    },
    "dragTextAction": {
       "description": "拖拽文字动作设置标签",
@@ -103,10 +81,6 @@
       "description": "拖拽文字动作搜索选项",
       "message": "搜索"
    },
-   "dragTextActionTranslate": {
-      "description": "拖拽文字动作翻译选项",
-      "message": "翻译"
-   },
    "dragTextInstructions": {
       "description": "拖拽文字功能说明",
       "message": "选中文本后拖拽即可触发搜索或翻译"
@@ -122,34 +96,6 @@
    "dragUrlAutoOpenInstructions": {
       "message": "如果选中文本是URL，会自动打开链接"
    },
-   "emailEmpty": {
-      "description": "邮箱为空时的错误提示",
-      "message": "请输入邮箱"
-   },
-   "emailInstructions": {
-      "description": "邮箱设置说明",
-      "message": "输入您的NoTab账号邮箱以同步Pro会员状态"
-   },
-   "emailInvalid": {
-      "description": "邮箱格式不正确时的错误提示",
-      "message": "邮箱格式不正确"
-   },
-   "emailSaved": {
-      "description": "邮箱保存成功的提示",
-      "message": "邮箱保存成功"
-   },
-   "extDescription": {
-      "description": "扩展描述",
-      "message": "NoTab - 在当前页面预览链接，支持翻译、搜索、阅读模式，极大提升你的浏览体验"
-   },
-   "extName": {
-      "description": "扩展名称",
-      "message": "NoTab - 链接预览助手|翻译|搜索"
-   },
-   "freeMemberStatus": {
-      "description": "免费用户状态显示",
-      "message": "免费用户"
-   },
    "hover": {
       "message": "悬停"
    },
@@ -158,66 +104,6 @@
    },
    "hoverDelayDescription": {
       "message": "鼠标悬停多久后显示预览"
-   },
-   "language": {
-      "description": "Language selection label",
-      "message": "语言"
-   },
-   "languageDanish": {
-      "description": "Danish language option",
-      "message": "Dansk"
-   },
-   "languageEnglish": {
-      "description": "English language option",
-      "message": "English"
-   },
-   "languageFrench": {
-      "description": "French language option",
-      "message": "Français"
-   },
-   "languageGerman": {
-      "description": "German language option",
-      "message": "Deutsch"
-   },
-   "languageHindi": {
-      "description": "Hindi language option",
-      "message": "हिंदी"
-   },
-   "languageItalian": {
-      "description": "Italian language option",
-      "message": "Italiano"
-   },
-   "languageJapanese": {
-      "description": "Japanese language option",
-      "message": "日本語"
-   },
-   "languageRussian": {
-      "description": "Russian language option",
-      "message": "Русский"
-   },
-   "languageSettings": {
-      "description": "Language settings section header",
-      "message": "语言设置"
-   },
-   "languageSimplifiedChinese": {
-      "description": "Simplified Chinese language option",
-      "message": "简体中文"
-   },
-   "languageTraditionalChinese": {
-      "description": "Traditional Chinese language option",
-      "message": "繁體中文"
-   },
-   "languageUpdated": {
-      "description": "Message shown after updating language",
-      "message": "语言已更新。"
-   },
-   "limitFootnote": {
-      "description": "每日最多弹窗次数的说明",
-      "message": "非Pro版本每日最多 10 次弹窗\u003Cbr>如果您是Pro版本，请在设置里绑定您的邮箱"
-   },
-   "limitReachedTitle": {
-      "description": "达到预览次数限制时的弹窗标题",
-      "message": "达到次数限制"
    },
    "linkPreviewSettings": {
       "description": "链接预览设置区域",
@@ -234,9 +120,6 @@
       "description": "长按延迟标签",
       "message": "长按延迟"
    },
-   "multiplePreviewsRequireVip": {
-      "message": "您需要升级到Pro版本才能使用多个预览窗口。"
-   },
    "none": {
       "description": "无选项",
       "message": "无"
@@ -251,9 +134,6 @@
    "pinPreview": {
       "description": "Pin preview button tooltip",
       "message": "固定预览"
-   },
-   "previewLimitReached": {
-      "message": "您已达到免费用户的每日预览上限。"
    },
    "previewPosition": {
       "description": "预览框位置设置标签",
@@ -315,39 +195,13 @@
       "description": "浅色选项",
       "message": "浅色"
    },
-   "proMemberStatus": {
-      "description": "Pro会员状态显示",
-      "message": "Pro"
-   },
-   "readerMode": {
-      "description": "Reader mode button tooltip",
-      "message": "阅读模式"
-   },
-   "readerModeError": {
-      "description": "Error message when reader mode fails",
-      "message": "阅读模式错误"
-   },
-   "readerModeUnavailable": {
-      "message": "阅读模式在此页面不可用"
-   },
    "refresh": {
       "description": "Refresh button tooltip",
       "message": "刷新"
    },
-   "remainingPreviewsClickToUpgrade": {
-      "message": "剩余预览次数，点击升级"
-   },
    "save": {
       "description": "保存按钮",
       "message": "保存"
-   },
-   "saveEmail": {
-      "description": "保存邮箱按钮",
-      "message": "保存"
-   },
-   "saveLanguage": {
-      "description": "Save language button",
-      "message": "保存语言设置"
    },
    "saveSettings": {
       "description": "Save settings button",
@@ -374,18 +228,9 @@
    "searchInstructions": {
       "message": "选中文本后，右键菜单中会显示搜索选项"
    },
-   "searchRequireVip": {
-      "message": "您需要升级到Pro版本才能使用搜索功能。"
-   },
    "settingsTab": {
       "description": "设置标签页名称",
       "message": "设置"
-   },
-   "targetLanguage": {
-      "message": "目标语言"
-   },
-   "targetLanguageAuto": {
-      "message": "自动检测"
    },
    "textSearchSettingsUpdated": {
       "message": "文本搜索设置已更新"
@@ -393,59 +238,9 @@
    "textSelectionSearch": {
       "message": "搜索设置"
    },
-   "textTranslation": {
-      "message": "文本翻译"
-   },
-   "translateEngine": {
-      "message": "默认翻译引擎"
-   },
-   "translateEngineBaidu": {
-      "message": "百度翻译"
-   },
-   "translateEngineBing": {
-      "message": "必应翻译"
-   },
-   "translateEngineCustom": {
-      "message": "自定义"
-   },
-   "translateEngineDeepL": {
-      "message": "DeepL翻译"
-   },
-   "translateInstructions": {
-      "message": "选中文本后，右键菜单中会显示翻译选项"
-   },
-   "translateRequireVip": {
-      "message": "您需要升级到Pro版本才能使用翻译功能。"
-   },
-   "translateSettingsUpdated": {
-      "message": "翻译设置已更新"
-   },
-   "translateText": {
-      "message": "翻译"
-   },
    "triggerMethod": {
       "description": "触发方式标签",
       "message": "触发方式"
-   },
-   "upgradeDescription": {
-      "description": "Upgrade description text",
-      "message": "解锁搜索、翻译、无限预览和多窗口！"
-   },
-   "upgradeToPro": {
-      "description": "升级到Pro按钮的文本",
-      "message": "升级到Pro"
-   },
-   "upgradeToProPopup": {
-      "description": "Upgrade to Pro button text",
-      "message": "升级到 Pro"
-   },
-   "upgradeToVip": {
-      "description": "Upgrade to VIP membership button",
-      "message": "升级到VIP会员"
-   },
-   "userEmail": {
-      "description": "邮箱账号标签",
-      "message": "邮箱账号"
    },
    "userSettings": {
       "description": "用户设置区域标题",

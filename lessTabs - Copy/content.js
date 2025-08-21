@@ -99,6 +99,24 @@ let linkPreviewSettings = {
   customTriggerKey: 'alt' // 自定义触发键：'alt', 'cmd', 'ctrl'
 };
 
+// 添加上次预览框位置和大小的存储
+let lastPreviewState = {
+  width: null,
+  height: null,
+  left: null,
+  top: null,
+  lastUsedPreset: 'medium' // 记录最后使用的预设大小
+};
+
+// 加载上次的预览状态
+function loadLastPreviewState() {
+  chrome.storage.local.get(['lastPreviewState'], function (result) {
+    if (result.lastPreviewState) {
+      lastPreviewState = result.lastPreviewState;
+    }
+  });
+}
+
 // 保存预览状态 - 添加防抖优化
 let saveStateTimeout = null;
 function saveLastPreviewState() {
@@ -106,6 +124,12 @@ function saveLastPreviewState() {
   if (saveStateTimeout) {
     clearTimeout(saveStateTimeout);
   }
+  
+  // 延迟保存，避免频繁写入存储
+  saveStateTimeout = setTimeout(() => {
+    chrome.storage.local.set({ lastPreviewState });
+    saveStateTimeout = null;
+  }, 300); // 300ms 延迟
 }
 
 // 计算预览框位置
@@ -127,6 +151,16 @@ function calculatePreviewPosition(event, tooltipWidth, tooltipHeight) {
       left = (viewportWidth - tooltipWidth) / 2;
       top = (viewportHeight - tooltipHeight) / 2;
       break;
+    case 'last':
+      if (lastPreviewState.left !== null && lastPreviewState.top !== null) {
+        left = lastPreviewState.left;
+        top = lastPreviewState.top;
+      } else {
+        // 如果没有上次位置记录，使用中间位置
+        left = (viewportWidth - tooltipWidth) / 2;
+        top = (viewportHeight - tooltipHeight) / 2;
+      }
+      break;
     default: // cursor
       left = event ? event.clientX - 20 : (viewportWidth - tooltipWidth) / 2;
       top = event ? event.clientY - 20 : (viewportHeight - tooltipHeight) / 2;
@@ -137,6 +171,26 @@ function calculatePreviewPosition(event, tooltipWidth, tooltipHeight) {
   top = Math.max(20, Math.min(top, viewportHeight - tooltipHeight - 20));
 
   return { left, top };
+}
+
+// 获取预览框大小
+function getPreviewSize() {
+  let tooltipWidth, tooltipHeight;
+
+  if (linkPreviewSettings.previewSize === 'last') {
+    // 如果选择了"上次大小"，但没有手动调整过大小，使用最后的预设大小
+    if (lastPreviewState.width === null || lastPreviewState.height === null) {
+      return getPresetSize(lastPreviewState.lastUsedPreset);
+    }
+    return {
+      tooltipWidth: lastPreviewState.width,
+      tooltipHeight: lastPreviewState.height
+    };
+  } else {
+    // 使用预设大小时，更新最后使用的预设
+    lastPreviewState.lastUsedPreset = linkPreviewSettings.previewSize;
+    return getPresetSize(linkPreviewSettings.previewSize);
+  }
 }
 
 // 获取预设大小
@@ -165,6 +219,24 @@ async function init() {
 
   // 初始化 Shadow DOM
   initShadowDOM();
+
+  // 加载预览设置
+  await new Promise(resolve => {
+    chrome.storage.local.get(['linkPreviewSettings'], function (result) {
+      if (result.linkPreviewSettings) {
+        linkPreviewSettings = {
+          ...linkPreviewSettings,
+          ...result.linkPreviewSettings
+        };
+        
+        // 如果有自定义主题颜色，应用自定义主题样式
+        if (linkPreviewSettings.previewTheme === 'custom' && linkPreviewSettings.customThemeColors) {
+          updateCustomThemeStyle(linkPreviewSettings.customThemeColors);
+        }
+      }
+      resolve();
+    });
+  });
 
   // 检查当前网站是否在黑名单中
   if (isCurrentSiteBlacklisted()) {
@@ -423,11 +495,6 @@ async function init() {
       min-height: 0; /* Prevent body from overflowing */
     }
 
-    .NoTab-limit-message {
-      padding: 12px 16px;
-      font-size: 18px;
-    }
-
     .NoTab-link-tooltip-summary {
       padding: 12px 16px;
       font-size: 13px;
@@ -453,6 +520,23 @@ async function init() {
       height: 100%;
       border: none;
       background: #fff;
+    }
+
+    .NoTab-link-tooltip-video-container { /* 新增视频播放器容器样式 */
+      flex: 1;
+      position: relative;
+      background: var(--tooltip-bg); /* 使用变量 */
+      min-height: 0;
+      border-radius: 0 0 12px 12px;
+      overflow: hidden; /* 隐藏iframe边框带来的额外空间 */
+      display: none; /* 默认隐藏 */
+    }
+
+    .NoTab-link-tooltip-video-iframe { /* 新增视频播放器iframe样式 */
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #000; /* 视频背景通常为黑色 */
     }
 
     .NoTab-link-tooltip-loading {
@@ -701,6 +785,137 @@ async function init() {
       --tooltip-remaining-previews-hover-bg: #bbb;
       --tooltip-remaining-previews-hover-text: #333;
     }
+    
+    /* 蓝色主题 */
+    .NoTab-link-tooltip.theme-blue {
+      --tooltip-bg: #ebf8ff;
+      --tooltip-text: #2b6cb0;
+      --tooltip-header-bg: #bee3f8;
+      --tooltip-header-text: #2c5282;
+      --tooltip-border: #90cdf4;
+      --tooltip-link-bg: #ffffff;
+      --tooltip-link-border: #90cdf4;
+      --tooltip-link-hover-border: #63b3ed;
+      --tooltip-action-bg: #4299e1;
+      --tooltip-action-hover-bg: #2b6cb0;
+      --tooltip-action-active-bg: #2b6cb0;
+      --tooltip-action-disabled-bg: #a0aec0;
+      --tooltip-summary-bg: #e2f0fd;
+      --tooltip-summary-text: #2b6cb0;
+      --tooltip-loading-bg: rgba(235, 248, 255, 0.95);
+      --tooltip-loading-text: #2b6cb0;
+      --tooltip-resize-handle-border: rgba(43, 108, 176, 0.2);
+      --tooltip-resize-handle-hover-border: rgba(43, 108, 176, 0.4);
+      --tooltip-remaining-previews-bg: #bee3f8;
+      --tooltip-remaining-previews-text: #2b6cb0;
+      --tooltip-remaining-previews-hover-bg: #90cdf4;
+      --tooltip-remaining-previews-hover-text: #2c5282;
+    }
+    
+    /* 绿色主题 */
+    .NoTab-link-tooltip.theme-green {
+      --tooltip-bg: #f0fff4;
+      --tooltip-text: #276749;
+      --tooltip-header-bg: #c6f6d5;
+      --tooltip-header-text: #22543d;
+      --tooltip-border: #9ae6b4;
+      --tooltip-link-bg: #ffffff;
+      --tooltip-link-border: #9ae6b4;
+      --tooltip-link-hover-border: #68d391;
+      --tooltip-action-bg: #48bb78;
+      --tooltip-action-hover-bg: #276749;
+      --tooltip-action-active-bg: #276749;
+      --tooltip-action-disabled-bg: #a0aec0;
+      --tooltip-summary-bg: #e2f9eb;
+      --tooltip-summary-text: #276749;
+      --tooltip-loading-bg: rgba(240, 255, 244, 0.95);
+      --tooltip-loading-text: #276749;
+      --tooltip-resize-handle-border: rgba(39, 103, 73, 0.2);
+      --tooltip-resize-handle-hover-border: rgba(39, 103, 73, 0.4);
+      --tooltip-remaining-previews-bg: #c6f6d5;
+      --tooltip-remaining-previews-text: #276749;
+      --tooltip-remaining-previews-hover-bg: #9ae6b4;
+      --tooltip-remaining-previews-hover-text: #22543d;
+    }
+    
+    /* 紫色主题 */
+    .NoTab-link-tooltip.theme-purple {
+      --tooltip-bg: #faf5ff;
+      --tooltip-text: #553c9a;
+      --tooltip-header-bg: #e9d8fd;
+      --tooltip-header-text: #44337a;
+      --tooltip-border: #d6bcfa;
+      --tooltip-link-bg: #ffffff;
+      --tooltip-link-border: #d6bcfa;
+      --tooltip-link-hover-border: #b794f4;
+      --tooltip-action-bg: #805ad5;
+      --tooltip-action-hover-bg: #553c9a;
+      --tooltip-action-active-bg: #553c9a;
+      --tooltip-action-disabled-bg: #a0aec0;
+      --tooltip-summary-bg: #f3e8ff;
+      --tooltip-summary-text: #553c9a;
+      --tooltip-loading-bg: rgba(250, 245, 255, 0.95);
+      --tooltip-loading-text: #553c9a;
+      --tooltip-resize-handle-border: rgba(85, 60, 154, 0.2);
+      --tooltip-resize-handle-hover-border: rgba(85, 60, 154, 0.4);
+      --tooltip-remaining-previews-bg: #e9d8fd;
+      --tooltip-remaining-previews-text: #553c9a;
+      --tooltip-remaining-previews-hover-bg: #d6bcfa;
+      --tooltip-remaining-previews-hover-text: #44337a;
+    }
+    
+    /* 粉色主题 */
+    .NoTab-link-tooltip.theme-pink {
+      --tooltip-bg: #fff5f7;
+      --tooltip-text: #b83280;
+      --tooltip-header-bg: #fed7e2;
+      --tooltip-header-text: #97266d;
+      --tooltip-border: #fbb6ce;
+      --tooltip-link-bg: #ffffff;
+      --tooltip-link-border: #fbb6ce;
+      --tooltip-link-hover-border: #f687b3;
+      --tooltip-action-bg: #ed64a6;
+      --tooltip-action-hover-bg: #b83280;
+      --tooltip-action-active-bg: #b83280;
+      --tooltip-action-disabled-bg: #a0aec0;
+      --tooltip-summary-bg: #fff0f5;
+      --tooltip-summary-text: #b83280;
+      --tooltip-loading-bg: rgba(255, 245, 247, 0.95);
+      --tooltip-loading-text: #b83280;
+      --tooltip-resize-handle-border: rgba(184, 50, 128, 0.2);
+      --tooltip-resize-handle-hover-border: rgba(184, 50, 128, 0.4);
+      --tooltip-remaining-previews-bg: #fed7e2;
+      --tooltip-remaining-previews-text: #b83280;
+      --tooltip-remaining-previews-hover-bg: #fbb6ce;
+      --tooltip-remaining-previews-hover-text: #97266d;
+    }
+
+    /* 自定义主题 - 基础定义，具体颜色由JS动态设置 */
+    .NoTab-link-tooltip.theme-custom {
+      /* 变量将由JS动态设置 */
+      --tooltip-bg: #ffffff;
+      --tooltip-text: #333333;
+      --tooltip-header-bg: #f5f5f5;
+      --tooltip-header-text: #333333;
+      --tooltip-border: #e0e0e0;
+      --tooltip-link-bg: #ffffff;
+      --tooltip-link-border: #cccccc;
+      --tooltip-link-hover-border: #aaaaaa;
+      --tooltip-action-bg: #555555;
+      --tooltip-action-hover-bg: #111111;
+      --tooltip-action-active-bg: #0556adff;
+      --tooltip-action-disabled-bg: #aaaaaa;
+      --tooltip-summary-bg: #fafafa;
+      --tooltip-summary-text: #333333;
+      --tooltip-loading-bg: rgba(255, 255, 255, 0.95);
+      --tooltip-loading-text: #666666;
+      --tooltip-resize-handle-border: rgba(0, 0, 0, 0.1);
+      --tooltip-resize-handle-hover-border: rgba(0, 0, 0, 0.2);
+      --tooltip-remaining-previews-bg: #f0f0f0;
+      --tooltip-remaining-previews-text: #333333;
+      --tooltip-remaining-previews-hover-bg: #e0e0e0;
+      --tooltip-remaining-previews-hover-text: #111111;
+    }
 
     /* Update existing styles to use variables */
     .NoTab-link-tooltip {
@@ -887,6 +1102,23 @@ async function init() {
       background: var(--tooltip-bg); /* Use variable */
     }
 
+    .NoTab-link-tooltip-video-container { /* 新增视频播放器容器样式 */
+      flex: 1;
+      position: relative;
+      background: var(--tooltip-bg); /* 使用变量 */
+      min-height: 0;
+      border-radius: 0 0 12px 12px;
+      overflow: hidden; /* 隐藏iframe边框带来的额外空间 */
+      display: none; /* 默认隐藏 */
+    }
+
+    .NoTab-link-tooltip-video-iframe { /* 新增视频播放器iframe样式 */
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #000; /* 视频背景通常为黑色 */
+    }
+
     .loading-spinner {
       width: 32px;
       height: 32px;
@@ -1015,9 +1247,19 @@ async function init() {
        pointer-events: none !important; /* Ensure spinner also doesn't interfere */
     }
 
+    .NoTab-link-tooltip-video-mode { /* 新增视频模式按钮样式 */
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.66 5H5.34A3.34 3.34 0 0 0 2 8.34v7.32A3.34 3.34 0 0 0 5.34 19h13.32A3.34 3.34 0 0 0 22 15.66V8.34A3.34 3.34 0 0 0 18.66 5m-8 0h2.68'%3E%3C/path%3E%3Cpath d='M10 15l5-3-5-3v6z'%3E%3C/path%3E%3C/svg%3E");
+      -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.66 5H5.34A3.34 3.34 0 0 0 2 8.34v7.32A3.34 3.34 0 0 0 5.34 19h13.32A3.34 3.34 0 0 0 22 15.66V8.34A3.34 3.34 0 0 0 18.66 5m-8 0h2.68'%3E%3C/path%3E%3Cpath d='M10 15l5-3-5-3v6z'%3E%3C/path%3E%3C/svg%3E");
+    }
   `;
   // 将样式添加到 Shadow DOM 而不是 document.head
   addStylesToShadowDOM(linkTooltipStyle);
+
+  // 加载链接预览设置
+  loadLinkPreviewSettings();
+
+  // 在init函数中添加加载上次预览状态
+  await loadLastPreviewState();
 
   // 添加样式到 Shadow DOM
   const style = document.createElement('style');
@@ -1031,6 +1273,28 @@ async function init() {
   addStylesToShadowDOM(customThemeStyle);
 
   // console.log('[NoTab] 初始化完成');
+}
+
+// Load link preview settings from storage
+function loadLinkPreviewSettings() {
+  chrome.storage.local.get(['linkPreviewSettings', 'user_info'], function(result) {
+    if (result.linkPreviewSettings) {
+      linkPreviewSettings = result.linkPreviewSettings;
+      
+      // 确保延时值在有效范围内（200ms-10s）
+      if (linkPreviewSettings.longPressDelay < 200) linkPreviewSettings.longPressDelay = 200;
+      if (linkPreviewSettings.longPressDelay > 10000) linkPreviewSettings.longPressDelay = 10000;
+      if (linkPreviewSettings.altHoverDelay < 200) linkPreviewSettings.altHoverDelay = 200;
+      if (linkPreviewSettings.altHoverDelay > 10000) linkPreviewSettings.altHoverDelay = 10000;
+      if (linkPreviewSettings.hoverDelay < 200) linkPreviewSettings.hoverDelay = 200;
+      if (linkPreviewSettings.hoverDelay > 10000) linkPreviewSettings.hoverDelay = 10000;
+      
+      if (linkPreviewSettings.previewTheme === 'custom' && linkPreviewSettings.customThemeColors) {
+        // 应用自定义主题颜色
+        updateCustomThemeStyle(linkPreviewSettings.customThemeColors);
+      }
+    }
+  });
 }
 
 // Set up event listeners
@@ -1052,8 +1316,17 @@ function setupEventListeners() {
       // 更新设置
       linkPreviewSettings = request.settings;
       
+      // 如果有自定义主题颜色，更新自定义主题样式
+      if (linkPreviewSettings.previewTheme === 'custom' && linkPreviewSettings.customThemeColors) {
+        updateCustomThemeStyle(linkPreviewSettings.customThemeColors);
+      }
+      
       sendResponse({ success: true });
 
+    } else if (request.action === 'updateCustomTheme') {
+      // 更新自定义主题颜色
+      updateCustomThemeStyle(request.colors);
+      sendResponse({ success: true });
     }
 
     return true; // 保持消息通道开放以支持异步响应
@@ -1661,6 +1934,45 @@ async function showLinkSummary(event, link, errorTip = undefined) {
   // 解析URL以获取更友好的显示
   let displayUrl = link.href; // 简化URL显示逻辑，可按需添加
 
+  // 新增：视频模式相关变量
+  let isVideoMode = false;
+  let videoPlayUrl = null;
+  const videoButtonTitle = getMessage('videoMode');
+  const videoButtonDisabledTitle = getMessage('videoModeUnavailable');
+
+  // 新增：解析视频ID的辅助函数
+  function getYoutubeVideoId(url) {
+    const regex = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  }
+
+  function getBilibiliVideoId(url) {
+    const regex = /bilibili\.com\/(?:video\/|bangumi\/play\/ep|bangumi\/play\/ss)?([aA-zZ0-9]+)/;
+    const match = url.match(regex);
+    if (match && match[1]) {
+        // 进一步检查是否是BV号 (例如 BV1xx411c7N2)
+        if (match[1].startsWith('BV') || match[1].startsWith('bv')) return match[1];
+        // 可能是av号，但B站现在主要用BV，这里可以根据需要扩展
+        // 尝试从查询参数中获取bvid
+        try {
+            const urlObj = new URL(url);
+            const bvid = urlObj.searchParams.get('bvid');
+            if (bvid) return bvid;
+        } catch (e) { /*无效URL则忽略*/ }
+    }
+    return null;
+  }
+
+  const youtubeId = getYoutubeVideoId(link.href);
+  const bilibiliId = getBilibiliVideoId(link.href);
+
+  if (youtubeId) {
+    videoPlayUrl = `https://www.youtube.com/embed/${youtubeId}`;
+  } else if (bilibiliId) {
+    videoPlayUrl = `https://player.bilibili.com/player.html?bvid=${bilibiliId}`;
+  }
+
   // 如果用户可以预览，或者已经是会员，正常显示预览
   if (!errorTip) {
     const handledUrl = optimizeUrl(link);
@@ -1675,6 +1987,7 @@ async function showLinkSummary(event, link, errorTip = undefined) {
           <a class="NoTab-link-tooltip-title" href="${link.href}" target="_blank" rel="noopener noreferrer" title="${link.href}">${displayUrl}</a>
         </div>
         <div class="NoTab-link-tooltip-actions">
+          <button class="NoTab-link-tooltip-action NoTab-link-tooltip-video-mode ${videoPlayUrl ? '' : 'disabled'}" title="${videoPlayUrl ? videoButtonTitle : videoButtonDisabledTitle}"></button>
           <button class="NoTab-link-tooltip-action NoTab-link-tooltip-pin" title="${getMessage('pinPreview')}"></button>
           <button class="NoTab-link-tooltip-action NoTab-link-tooltip-refresh" title="${getMessage('refresh')}"></button>
           <button class="NoTab-link-tooltip-action NoTab-link-tooltip-open" title="${getMessage('openInNewWindow')}"></button>
@@ -1685,6 +1998,9 @@ async function showLinkSummary(event, link, errorTip = undefined) {
       <div class="NoTab-link-tooltip-body">
         <div class="NoTab-link-tooltip-iframe-container">
           <iframe class="NoTab-link-tooltip-iframe" src="${handledUrl}" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms allow-downloads allow-orientation-lock allow-pointer-lock allow-presentation allow-modals"></iframe>
+        </div>
+        <div class="NoTab-link-tooltip-video-container" style="display: none"> <!-- 新增视频容器 -->
+          <iframe class="NoTab-link-tooltip-video-iframe" frameborder="0" allowfullscreen referrerpolicy="no-referrer" title="视频播放器" sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms allow-downloads allow-orientation-lock allow-pointer-lock allow-presentation allow-modals"></iframe>
         </div>
       </div>
       <div class="NoTab-link-tooltip-resize-handle NoTab-resize-se"></div>
@@ -1698,7 +2014,7 @@ async function showLinkSummary(event, link, errorTip = undefined) {
   appendToShadowDOM(tooltip);
 
   // 获取预览框大小
-  const { tooltipWidth, tooltipHeight } = getPresetSize('small');
+  const { tooltipWidth, tooltipHeight } = getPreviewSize();
 
   // 计算位置
   const { left, top } = calculatePreviewPosition(event, tooltipWidth, tooltipHeight);
@@ -1762,8 +2078,44 @@ async function showLinkSummary(event, link, errorTip = undefined) {
     const resizeHandleSE = tooltip.querySelector('.NoTab-resize-se'); // 右下角
     const resizeHandleSW = tooltip.querySelector('.NoTab-resize-sw'); // 左下角
 
+    // 新增：视频模式相关元素
+    const videoModeBtn = tooltip.querySelector('.NoTab-link-tooltip-video-mode');
+    const videoContainer = tooltip.querySelector('.NoTab-link-tooltip-video-container');
+    const videoIframe = tooltip.querySelector('.NoTab-link-tooltip-video-iframe');
+
+    // 新增：视频模式状态 (isVideoMode 已在函数开头定义)
+
     // 显示进度条动画
     progressBar.classList.add('notab-loading');
+
+    // 新增：视频模式切换函数
+    function toggleVideoMode() {
+      if (!videoModeBtn || videoModeBtn.classList.contains('disabled') || !videoPlayUrl) return;
+      isVideoMode = !isVideoMode;
+
+      if (isVideoMode) { // Entering Video Mode
+
+        if (iframe) iframe.src = 'about:blank'; // Stop standard iframe playback
+
+        if (videoIframe && videoIframe.src !== videoPlayUrl) {
+          videoIframe.src = videoPlayUrl;
+          progressBar.classList.add('notab-loading'); // Show loading for video
+        }
+      } else { // Exiting Video Mode
+        if (videoIframe) videoIframe.src = 'about:blank'; // Stop video iframe playback
+        // restore standard iframe
+        if (iframe) {
+          iframe.src = tooltip.dataset.handledUrl; // Reload original content from dataset
+          progressBar.classList.add('notab-loading');
+        }
+      }
+
+      videoModeBtn.classList.toggle('active', isVideoMode);
+      iframeContainer.style.display = !isVideoMode ? 'block' : 'none';
+      videoContainer.style.display = isVideoMode ? 'block' : 'none';
+    }
+
+    if (videoModeBtn) videoModeBtn.addEventListener('click', toggleVideoMode); // 添加视频模式按钮事件
 
     openBtn.addEventListener('click', () => {
       window.open(link.href, '_blank');
@@ -1818,6 +2170,27 @@ async function showLinkSummary(event, link, errorTip = undefined) {
       progressBar.classList.remove('notab-loading');
     });
 
+    // 新增：视频 iframe 加载事件
+    if (videoIframe) {
+        videoIframe.addEventListener('load', () => {
+          if (isVideoMode) {
+            progressBar.classList.remove('notab-loading');
+          }
+        });
+        videoIframe.addEventListener('error', () => {
+            progressBar.classList.remove('notab-loading');
+            // 视频加载失败，禁用视频模式并切换回普通模式
+            if (isVideoMode) { // 如果当前是视频模式，则切换
+                isVideoMode = false;
+                videoModeBtn.classList.remove('active');
+                iframeContainer.style.display = 'block';
+                videoContainer.style.display = 'none';
+                iframe.src = tooltip.dataset.handledUrl;
+                progressBar.classList.add('notab-loading');
+            }
+        });
+    }
+
     pinBtn.addEventListener('click', (e) => {
       const isPinned = tooltip.dataset.isPinned === 'true';
       tooltip.dataset.isPinned = !isPinned ? 'true' : 'false';
@@ -1861,7 +2234,6 @@ async function showLinkSummary(event, link, errorTip = undefined) {
         animationFrameId = null;
       });
     }
-
           dragHandle.addEventListener('mousedown', (e) => {
         if (e.target.closest('button, a')) return;
         isDragging = true;
@@ -1935,6 +2307,9 @@ async function showLinkSummary(event, link, errorTip = undefined) {
           tooltip.style.top = `${top}px`;
           tooltip.style.transform = '';
           
+                     // 保存最新位置（仅更新内存，不立即保存到存储）
+           lastPreviewState.left = left;
+           lastPreviewState.top = top;
         });
       }
       
@@ -1947,9 +2322,11 @@ async function showLinkSummary(event, link, errorTip = undefined) {
             
             if (newWidth > 400) {
               tooltip.style.width = `${newWidth}px`;
+              lastPreviewState.width = newWidth;
             }
             if (newHeight > 300) {
               tooltip.style.height = `${newHeight}px`;
+              lastPreviewState.height = newHeight;
             }
           } else if (resizeDirection === 'sw') {
             // 左下角调整大小
@@ -1961,9 +2338,12 @@ async function showLinkSummary(event, link, errorTip = undefined) {
             if (newWidth > 400) {
               tooltip.style.width = `${newWidth}px`;
               tooltip.style.left = `${originalLeft - deltaX}px`;
+              lastPreviewState.width = newWidth;
+              lastPreviewState.left = originalLeft - deltaX;
             }
             if (newHeight > 300) {
               tooltip.style.height = `${newHeight}px`;
+              lastPreviewState.height = newHeight;
             }
           }
         });
@@ -1978,7 +2358,7 @@ async function showLinkSummary(event, link, errorTip = undefined) {
         tooltip.classList.remove('dragging', 'resizing');
         document.body.style.userSelect = '';
         
-                         // 保存状态到存储（仅在操作结束时保存一次）
+        // 保存状态到存储（仅在操作结束时保存一次）
         saveLastPreviewState();
         
         // 取消待处理的动画帧
@@ -2097,11 +2477,14 @@ function updateAllUITexts() {
       const refreshBtn = preview.querySelector('.NoTab-link-tooltip-refresh');
       const openBtn = preview.querySelector('.NoTab-link-tooltip-open');
       const closeBtn = preview.querySelector('.NoTab-link-tooltip-close');
+      const videoModeBtn = preview.querySelector('.NoTab-link-tooltip-video-mode'); // 新增视频模式按钮
 
       if (pinBtn) pinBtn.title = getMessage('pinPreview') || '固定预览';
       if (refreshBtn) refreshBtn.title = getMessage('refresh') || '刷新';
       if (openBtn) openBtn.title = getMessage('openInNewWindow') || '新窗口打开';
       if (closeBtn) closeBtn.title = getMessage('close') || '关闭';
+      if (videoModeBtn && !videoModeBtn.classList.contains('disabled')) videoModeBtn.title = getMessage('videoMode') || '视频模式'; // 新增视频模式按钮标题
+      if (videoModeBtn && videoModeBtn.classList.contains('disabled')) videoModeBtn.title = getMessage('videoModeUnavailable') || '视频模式不可用';
     });
   }
 
@@ -2254,6 +2637,68 @@ function handleIframeMessages(event) {
 }
 
 // 在文件末尾添加以下函数
+
+// 更新自定义主题样式
+function updateCustomThemeStyle(colors) {
+  if (!colors || !colors.bg || !colors.text) {
+    return;
+  }
+  
+  // 获取或创建自定义主题样式元素
+  let customThemeStyle = shadowRoot ? shadowRoot.getElementById('NoTab-custom-theme-style') : null;
+  if (!customThemeStyle) {
+    customThemeStyle = document.createElement('style');
+    customThemeStyle.id = 'NoTab-custom-theme-style';
+    addStylesToShadowDOM(customThemeStyle);
+  }
+  
+  // 基于背景色和文本色计算其他颜色
+  const bgColor = colors.bg;
+  const textColor = colors.text;
+  
+  // 生成略深的背景色作为header背景
+  const headerBgColor = adjustColor(bgColor, -10);
+  // 生成略浅的文本色作为border颜色
+  const borderColor = adjustColor(textColor, 100);
+  // 生成略深的文本色作为hover border颜色
+  const hoverBorderColor = adjustColor(textColor, 50);
+  // 使用文本色作为action背景色
+  const actionBgColor = textColor;
+  // 生成较深的文本色作为hover背景色
+  const actionHoverBgColor = adjustColor(textColor, -50);
+  // 生成突出的强调色
+  const accentColor = generateAccentColor(bgColor, textColor);
+  
+  // 设置自定义主题的CSS变量
+  const cssText = `
+    .NoTab-link-tooltip.theme-custom {
+      --tooltip-bg: ${bgColor};
+      --tooltip-text: ${textColor};
+      --tooltip-header-bg: ${headerBgColor};
+      --tooltip-header-text: ${textColor};
+      --tooltip-border: ${borderColor};
+      --tooltip-link-bg: ${bgColor};
+      --tooltip-link-border: ${borderColor};
+      --tooltip-link-hover-border: ${hoverBorderColor};
+      --tooltip-action-bg: ${actionBgColor};
+      --tooltip-action-hover-bg: ${actionHoverBgColor};
+      --tooltip-action-active-bg: ${accentColor};
+      --tooltip-action-disabled-bg: #a0aec0;
+      --tooltip-summary-bg: ${adjustColor(bgColor, -5)};
+      --tooltip-summary-text: ${textColor};
+      --tooltip-loading-bg: ${bgColor}F5;
+      --tooltip-loading-text: ${textColor};
+      --tooltip-resize-handle-border: ${textColor}33;
+      --tooltip-resize-handle-hover-border: ${textColor}66;
+      --tooltip-remaining-previews-bg: ${adjustColor(bgColor, -10)};
+      --tooltip-remaining-previews-text: ${textColor};
+      --tooltip-remaining-previews-hover-bg: ${adjustColor(bgColor, -20)};
+      --tooltip-remaining-previews-hover-text: ${textColor};
+    }
+  `;
+  
+  customThemeStyle.textContent = cssText;
+}
 
 // 辅助函数：调整颜色明度
 function adjustColor(color, amount) {
