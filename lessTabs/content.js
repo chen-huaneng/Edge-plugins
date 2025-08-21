@@ -218,27 +218,11 @@ let textSearchSettings = {
   dragRightAction: 'search' // 右拖动作：'translate' 或 'search'
 };
 
-// 全局翻译设置
-let translateSettings = {
-  enabled: true,
-  translateEngine: 'bing',
-  customTranslateUrl: '',
-  targetLanguage: 'auto' // 默认为自动检测目标语言
-};
-
 // 搜索引擎URL模板
 const searchEngineUrls = {
   google: 'https://www.google.com/search?q=%s',
   bing: 'https://www.bing.com/search?q=%s',
   baidu: 'https://www.baidu.com/s?wd=%s'
-};
-
-// 翻译引擎URL模板
-const translateEngineUrls = {
-  google: 'https://translate.google.com/?sl=auto&tl=%tl&text=%s&op=translate',
-  bing: 'https://www.bing.com/translator/?from=auto&to=%tl&text=%s',
-  baidu: 'https://fanyi.baidu.com/#auto/%tl/%s',
-  deepl: 'https://www.deepl.com/translator#en/%tl/%s'
 };
 
 function makeHeaders() {
@@ -1354,9 +1338,6 @@ async function init() {
   // 加载选中文本搜索设置
   loadTextSearchSettings();
 
-  // 加载翻译设置
-  loadTranslateSettings();
-
   // 在init函数中添加加载上次预览状态
   await loadLastPreviewState();
 
@@ -1404,43 +1385,6 @@ function loadTextSearchSettings() {
         ...textSearchSettings,
         ...result.textSearchSettings
       };
-    }
-  });
-}
-
-// 加载翻译设置
-function loadTranslateSettings() {
-  chrome.storage.local.get(['translateSettings', 'language'], function (result) {
-    // 根据当前语言设置适合的目标语言代码
-    let defaultTargetLang = result.targetLanguage || 'en';
-
-    if (result.translateSettings) {
-      translateSettings = {
-        ...translateSettings,
-        ...result.translateSettings
-      };
-
-      // 如果没有设置目标语言，使用当前插件语言
-      if (!translateSettings.targetLanguage || translateSettings.targetLanguage === 'auto') {
-        translateSettings.targetLanguage = defaultTargetLang;
-
-        // 将更新后的设置保存回存储
-        chrome.storage.local.set({ translateSettings: translateSettings });
-      }
-    } else {
-      // 创建默认设置
-      const defaultSettings = {
-        enabled: true,
-        translateEngine: 'bing',
-        customTranslateUrl: '',
-        targetLanguage: defaultTargetLang // 使用基于当前插件语言的目标语言
-      };
-
-      // 保存默认设置
-      chrome.storage.local.set({ translateSettings: defaultSettings });
-
-      // 更新当前设置
-      translateSettings = defaultSettings;
     }
   });
 }
@@ -2092,12 +2036,7 @@ async function showLinkSummary(event, link, errorTip = undefined) {
   removeLongPressLoader(); // Add this line
 
   // 检查用户是否可以预览链接
-  const previewStatus = await canUsePreview(); // 修改这里，接收对象
-
-  // 如果已经显示了相同链接的预览，不要重复显示
-  // if (activePreviewUrls.includes(link.href)) {
-  //   return;
-  // }
+  const previewStatus = { canPreview: true, remainingCount: Infinity };
 
   // 创建提示框
   const tooltip = document.createElement('div');
@@ -2667,17 +2606,6 @@ async function showLinkSummary(event, link, errorTip = undefined) {
       isResizing = false;
       resizeDirection = null;
     });
-  } else {
-    // 为次数限制弹窗绑定升级按钮点击事件
-    const upgradeButton = tooltip.querySelector('.NoTab-upgrade-button');
-    if (upgradeButton) {
-      upgradeButton.addEventListener('click', () => {
-        // 跳转到升级页面，在新标签页打开
-        window.open('https://notab.pro/#pricing', '_blank');
-        // 关闭提示框
-        closeBtn.click();
-      });
-    }
   }
 
   // 点击外部关闭 (仅当未固定时)
@@ -2968,30 +2896,6 @@ function getCurrentLanguage() {
   });
 }
 
-// 监听语言更改消息
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  if (request.action === 'updateLanguage') {
-    // console.log('[NoTab] 收到语言更新消息:', request.language);
-
-    // 异步处理语言更新
-    (async function () {
-      try {
-        // 加载新的语言消息并更新UI
-        await loadMessages(request.language);
-        updateAllUITexts();
-        sendResponse({ success: true });
-      } catch (error) {
-        console.error('[NoTab] 更新语言失败:', error);
-        sendResponse({ success: false, error: error.message });
-      }
-    })();
-
-    return true; // 保持消息通道开放
-  }
-
-  // 其他消息处理...
-});
-
 // 更新所有UI文本的辅助函数
 function updateAllUITexts() {
   // 更新链接预览相关文本
@@ -3017,60 +2921,6 @@ function updateAllUITexts() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     el.textContent = getMessage(key);
-  });
-}
-
-// 检查用户是否可以使用预览功能
-async function canUsePreview() {
-  // VIP 用户无限制
-  if (isCurrentUserVip) {
-    return { canPreview: true, remainingCount: Infinity };
-  }
-
-  return new Promise((resolve) => {
-    chrome.storage.local.get(['preview_count', 'preview_reset_date'], (result) => {
-      const today = new Date().toDateString();
-      let count = result.preview_count || 0;
-      const resetDate = result.preview_reset_date;
-      const PREVIEW_LIMIT = 10; // 非VIP每日预览限制
-
-      // 如果是新的一天，重置计数
-      if (resetDate !== today) {
-        count = 0;
-        // 异步更新，但不阻塞当前逻辑返回
-        chrome.storage.local.set({ preview_count: 0, preview_reset_date: today });
-      }
-
-      const remainingCount = Math.max(0, PREVIEW_LIMIT - count);
-      const canPreview = count < PREVIEW_LIMIT;
-
-      // console.log('[NoTab] 预览检查:', { canPreview, count, remainingCount, today, resetDate });
-      resolve({ canPreview, remainingCount });
-    });
-  });
-}
-
-// 增加预览计数
-async function incrementPreviewCount() {
-  // 直接使用存储的VIP状态
-  if (isCurrentUserVip) {
-    return; // VIP用户不计数
-  }
-
-  chrome.storage.local.get(['preview_count', 'preview_reset_date'], (result) => {
-    const today = new Date().toDateString();
-    let count = result.preview_count || 0;
-    const resetDate = result.preview_reset_date;
-
-    // 确保日期是最新的
-    if (resetDate !== today) {
-      count = 0;
-      chrome.storage.local.set({ preview_count: 1, preview_reset_date: today });
-    } else {
-      count++;
-      chrome.storage.local.set({ preview_count: count });
-    }
-    // console.log('[NoTab] 预览计数增加:', count);
   });
 }
 
