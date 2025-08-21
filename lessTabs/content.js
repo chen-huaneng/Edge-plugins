@@ -1453,23 +1453,6 @@ function setupEventListeners() {
         sendResponse({ success: false, message: '没有选中文本' });
       }
       return true;
-    } else if (request.action === 'updateVipStatus') {
-      // 处理来自popup的VIP状态更新
-      // console.log('[NoTab] 接收到VIP状态更新:', request.isVip);
-
-      // 直接更新VIP状态
-      isCurrentUserVip = request.isVip;
-
-      // 如果有用户信息，也更新到本地存储
-      if (request.userInfo) {
-        chrome.storage.local.set({ user_info: request.userInfo });
-      }
-
-      sendResponse({
-        success: true,
-        message: '已更新VIP状态'
-      });
-      return true;
     } else if (request.action === 'updateLinkPreviewSettings') {
       // 更新设置
       linkPreviewSettings = request.settings;
@@ -2131,32 +2114,8 @@ async function showLinkSummary(event, link, errorTip = undefined) {
     videoPlayUrl = `https://player.bilibili.com/player.html?bvid=${bilibiliId}`;
   }
 
-  // 检查是否需要显示错误提示
-  if (!errorTip) {
-    if (!previewStatus.canPreview && !isCurrentUserVip) { // 修改这里
-      errorTip = getMessage('previewLimitReached');
-    } else if (activePreviewUrls.length > 1 && !isCurrentUserVip) { // 修改这里
-      errorTip = getMessage('multiplePreviewsRequireVip');
-    }
-  }
-
-  // 生成剩余次数 HTML (仅非VIP且可预览时)
-  let remainingPreviewsHTML = '';
-  if (!isCurrentUserVip && previewStatus.canPreview) { // 修改这里
-    remainingPreviewsHTML = `
-      <div class="NoTab-remaining-previews" title="${getMessage('remainingPreviewsClickToUpgrade')}">
-        <span class="NoTab-preview-icon">⚡</span> ${previewStatus.remainingCount}
-      </div>
-    `;
-  }
-
   // 如果用户可以预览，或者已经是会员，正常显示预览
   if (!errorTip) {
-    // 增加预览计数 (仅对非VIP用户且此次操作是有效预览时)
-    if (!isCurrentUserVip) {
-      await incrementPreviewCount(); // 确保计数增加
-    }
-
     const handledUrl = optimizeUrl(link);
 
     // 将 handledUrl 存储到 dataset 中，以便在闭包中稳定访问
@@ -2169,7 +2128,6 @@ async function showLinkSummary(event, link, errorTip = undefined) {
           <a class="NoTab-link-tooltip-title" href="${link.href}" target="_blank" rel="noopener noreferrer" title="${link.href}">${displayUrl}</a>
         </div>
         <div class="NoTab-link-tooltip-actions">
-          ${remainingPreviewsHTML}
           <button class="NoTab-link-tooltip-action NoTab-link-tooltip-video-mode ${videoPlayUrl ? '' : 'disabled'}" title="${videoPlayUrl ? videoButtonTitle : videoButtonDisabledTitle}"></button>
           <button class="NoTab-link-tooltip-action NoTab-link-tooltip-pin" title="${getMessage('pinPreview')}"></button>
           <button class="NoTab-link-tooltip-action NoTab-link-tooltip-refresh" title="${getMessage('refresh')}"></button>
@@ -2189,31 +2147,6 @@ async function showLinkSummary(event, link, errorTip = undefined) {
       <div class="NoTab-link-tooltip-resize-handle NoTab-resize-se"></div>
       <div class="NoTab-link-tooltip-resize-handle NoTab-resize-sw"></div>
     `;
-  } else {
-    // 如果达到次数限制，显示提示信息
-    tooltipContent.innerHTML = `
-      <div class="NoTab-link-tooltip-header" id="drag-handle">
-        <div class="NoTab-link-tooltip-link-group">
-          <span class="NoTab-link-tooltip-title">${getMessage('limitReachedTitle')}</span>
-        </div>
-        <div class="NoTab-link-tooltip-actions">
-          <button class="NoTab-link-tooltip-action NoTab-link-tooltip-close" title="${getMessage('close')}"></button>
-        </div>
-      </div>
-      <div class="NoTab-link-tooltip-body NoTab-limit-reached-body">
-        <div class="NoTab-limit-message">
-          ${errorTip}
-        </div>
-        <button class="NoTab-upgrade-button" style="background-color: var(--tooltip-upgrade-button-bg); color: var(--tooltip-upgrade-button-text);">
-          ${getMessage('upgradeToPro')}
-          <span class="NoTab-upgrade-arrow">↑</span>
-        </button>
-        <p class="NoTab-limit-footnote" style="color: var(--tooltip-limit-footnote-text);">${getMessage('limitFootnote')}</p>
-      </div>
-      <div class="NoTab-link-tooltip-resize-handle NoTab-resize-se"></div>
-      <div class="NoTab-link-tooltip-resize-handle NoTab-resize-sw"></div>
-    `;
-    // tooltip.classList.add('NoTab-limit-reached-tooltip'); // 添加特殊类名用于调整样式
   }
 
   tooltip.appendChild(tooltipContent);
@@ -2301,8 +2234,6 @@ async function showLinkSummary(event, link, errorTip = undefined) {
     const videoContainer = tooltip.querySelector('.NoTab-link-tooltip-video-container');
     const videoIframe = tooltip.querySelector('.NoTab-link-tooltip-video-iframe');
 
-    // 阅读模式状态
-    let hasProcessedContent = false;
     // 新增：视频模式状态 (isVideoMode 已在函数开头定义)
 
     // 显示进度条动画
@@ -2687,44 +2618,8 @@ function searchSelectedText(text) {
   linkElement.href = searchUrl;
   linkElement.textContent = text;
 
-  if (!isCurrentUserVip) {
-    showLinkSummary(null, linkElement, getMessage('searchRequireVip'));
-    return;
-  }
-
   // 显示搜索结果预览
   showLinkSummary(null, linkElement);
-
-  // 增加预览计数 (仅对非VIP用户)
-  incrementPreviewCount();
-}
-
-// 翻译选中文本
-function translateSelectedText(text) {
-  // 如果在iframe中，发送消息给父窗口处理
-  if (isInIframe) {
-    postMessageToParent('translateSelectedText', { text: text });
-    return;
-  }
-
-  // 获取翻译URL
-  let translateUrl = getTranslateUrl(text);
-
-  // 创建虚拟链接元素
-  const linkElement = document.createElement('a');
-  linkElement.href = translateUrl;
-  linkElement.textContent = text;
-
-  if (!isCurrentUserVip) {
-    showLinkSummary(null, linkElement, getMessage('translateRequireVip'));
-    return;
-  }
-
-  // 显示翻译结果预览
-  showLinkSummary(null, linkElement);
-
-  // 增加预览计数 (仅对非VIP用户)
-  incrementPreviewCount();
 }
 
 // 获取搜索URL
@@ -2761,50 +2656,6 @@ function getSearchUrl(query) {
 
   // 替换查询参数
   return urlTemplate.replace('%s', encodeURIComponent(query));
-}
-
-// 获取翻译URL
-function getTranslateUrl(text) {
-  // 如果启用了自动打开链接功能，检查是否是有效的URL
-  if (textSearchSettings.dragUrlAutoOpen) {
-    try {
-      const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?$/;
-      if (urlPattern.test(text)) {
-        // 如果是有效的URL，但没有协议，添加https://
-        if (!text.startsWith('http')) {
-          return 'https://' + text;
-        }
-        return text;
-      }
-    } catch (e) {
-      // 如果URL解析失败，继续使用搜索
-      console.error('URL parsing failed:', e);
-    }
-  }
-
-  const engine = translateSettings.translateEngine;
-  let targetLang = translateSettings.targetLanguage || 'en';
-  let urlTemplate = '';
-
-  // 处理目标语言代码，确保与翻译引擎兼容
-  if (engine === 'baidu') {
-    // 百度翻译使用简单的语言代码（不含地区）
-    targetLang = targetLang.split('-')[0];
-  }
-
-  if (engine === 'custom' && translateSettings.customTranslateUrl) {
-    urlTemplate = translateSettings.customTranslateUrl;
-  } else if (translateEngineUrls[engine]) {
-    urlTemplate = translateEngineUrls[engine];
-  } else {
-    // 默认使用Google
-    urlTemplate = translateEngineUrls.google;
-  }
-
-  // 替换查询参数和目标语言
-  return urlTemplate
-    .replace('%s', encodeURIComponent(text))
-    .replace('%tl', targetLang);
 }
 
 // Initialize when the content script loads
