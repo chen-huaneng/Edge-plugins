@@ -1,7 +1,5 @@
 // Global variables
-let altKeyTimeout = null; // 添加定时器ID变量
 let longPressTimeout = null; // 添加长按定时器
-let isLongPressing = false; // 添加长按状态标记
 let activePreviewUrls = []; // 修改为数组，存储所有活动的预览URL
 let activePreviews = new Map(); // 添加Map来存储预览窗口的引用
 let currentLanguage = 'zh_CN'; // 当前语言设置
@@ -87,16 +85,13 @@ let linkSummaryCache = {};
 
 // Global link preview settings
 let linkPreviewSettings = {
-  triggerMode: 'alt_hover', // 'alt_hover', 'alt_click', or 'long_press'
-  longPressDelay: 500, // 长按触发延迟（毫秒）
-  altHoverDelay: 200, // Alt+悬停触发延迟（毫秒）
+  triggerMode: 'drag_link', // 'alt_hover', 'alt_click', or 'long_press'
   hoverDelay: 500, // 悬停触发延迟（毫秒）
   previewSize: 'medium', // 预览框大小，可选值：'small', 'medium', 'large', 'last'
   previewPosition: 'cursor', // 预览框位置，可选值：'cursor', 'left', 'center', 'right', 'last'
   previewTheme: 'light', // Add this line: 'light', 'dark', 'gray'
   overlayOpacity: 50, // 添加背景遮罩透明度设置，默认50%
   blacklistSites: [], // Add this line: Blacklist sites
-  customTriggerKey: 'alt' // 自定义触发键：'alt', 'cmd', 'ctrl'
 };
 
 // 保存预览状态 - 添加防抖优化
@@ -1099,13 +1094,7 @@ function setupLinkHoverListeners() {
 
   // 链接和文本拖拽事件处理已经合并到handleDocumentDragEnd中
 
-  // Alt键监听保持不变
-  document.removeEventListener('keydown', trackAltKeyDown);
-  document.removeEventListener('keyup', trackAltKeyUp);
-  document.addEventListener('keydown', trackAltKeyDown);
-  document.addEventListener('keyup', trackAltKeyUp);
   document.addEventListener('visibilitychange', () => {
-    isAltPressed = false;
     clearLinkPreviewTimeouts();
     if (document.hidden) {
       // console.log('用户切换到其他标签页或应用');
@@ -1136,28 +1125,9 @@ function handleDocumentMouseOver(event) {
       currentHoveredLink = link.href;
       
       // 创建loading指示器
-      removeLongPressLoader();
-      longPressLoadingIndicator = document.createElement('div');
-      longPressLoadingIndicator.className = 'NoTab-long-press-loader';
       const spinner = document.createElement('div');
       spinner.className = 'loading-spinner';
-      longPressLoadingIndicator.appendChild(spinner);
-      
-      // 将loading指示器放在鼠标中心位置
-      longPressLoadingIndicator.style.left = `${event.clientX}px`;
-      longPressLoadingIndicator.style.top = `${event.clientY}px`;
-      
-      appendToShadowDOM(longPressLoadingIndicator);
-
-      // 设置延迟显示预览
-      longPressTimeout = setTimeout(() => {
-        showLinkSummary(event, link);
-      }, linkPreviewSettings.hoverDelay || 500); // 使用配置的延迟时间，默认500ms
-    } else if (linkPreviewSettings.triggerMode === 'alt_hover') {
-      // Alt+悬停模式
-      handleLinkHover(event);
     }
-    // 对于长按模式和Alt+点击模式，不在mouseover时处理
   }
 }
 
@@ -1208,11 +1178,7 @@ function handleDocumentMouseOut(event) {
         }
       }, 150); // 增加防抖延迟到150ms，给更多时间稳定
       
-    } else if (linkPreviewSettings.triggerMode === 'alt_hover') {
-      // console.log('[NoTab] Alt+悬停模式 - 处理离开');
-      handleLinkLeave(event);
     }
-    // 对于长按模式，不在mouseout时处理
   }
 }
 
@@ -1225,45 +1191,12 @@ function handleDocumentMouseDown(event) {
   dragStartX = event.clientX;
   dragStartY = event.clientY;
   isDragging = false;
-  
-  const link = event.target.closest('a');
-  if (link && link.href) {
-    // 如果是悬停模式且当前有悬停超时在运行，取消悬停预览，走正常点击逻辑
-    if (linkPreviewSettings.triggerMode === 'hover' && 
-        currentHoveredLink === link.href && 
-        longPressTimeout) {
-      // console.log('[NoTab] 悬停期间检测到点击，取消悬停预览，执行正常点击');
-      clearLinkPreviewTimeouts();
-      currentHoveredLink = null;
-      // 不调用 handleLinkMouseDown，让点击事件正常进行
-      return;
-    }
-    
-    // 存储当前按下的链接引用
-    currentPressedLink = link;
-    handleLinkMouseDown(event);
-  }
 }
 
 // 修改 handleDocumentMouseUp 函数
 function handleDocumentMouseUp(event) {
   // 使用保存的链接引用而不是尝试从当前事件获取
   // console.log('[NoTab] 检测到鼠标放开:', currentPressedLink);
-
-  // 如果存在保存的链接引用
-  if (currentPressedLink && currentPressedLink.href) {
-    // 如果在长按模式下
-    if (linkPreviewSettings.triggerMode === 'long_press') {
-      // 如果正在长按中，说明已经触发了预览，需要阻止点击事件
-      if (isLongPressing) {
-        // 不在这里重置isLongPressing，让长按超时函数处理
-        clearLinkPreviewTimeouts();
-      } else {
-        // 如果没有触发长按（时间不够），清除定时器
-        clearLinkPreviewTimeouts();
-      }
-    }
-  }
 
   // 处理完后重置链接引用
   currentPressedLink = null;
@@ -1279,11 +1212,6 @@ function handleDocumentMouseMove(event) {
     if (deltaX > 5 || deltaY > 5) {
       isDragging = true;
     }
-  }
-  
-  const link = event.target.closest('a');
-  if (link && link.href) {
-    checkAltKeyOnHover(event);
   }
 }
 
@@ -1302,14 +1230,6 @@ function handleDocumentClick(event) {
 
 // Clear all link preview related timeouts
 function clearLinkPreviewTimeouts() {
-  if (altKeyTimeout) {
-    clearTimeout(altKeyTimeout);
-    altKeyTimeout = null;
-  }
-  if (longPressTimeout) {
-    clearTimeout(longPressTimeout);
-    longPressTimeout = null;
-  }
   if (hoverDebounceTimeout) {
     clearTimeout(hoverDebounceTimeout);
     hoverDebounceTimeout = null;
@@ -1317,254 +1237,10 @@ function clearLinkPreviewTimeouts() {
   removeLongPressLoader(); // Add this line
 }
 
-// Handle link mouse down for long press
-function handleLinkMouseDown(event) {
-  if (linkPreviewSettings.triggerMode === 'long_press') {
-    // 只响应鼠标左键（button为0），过滤掉右键（button为2）和中键（button为1）
-    if (event.button !== 0) {
-      return;
-    }
-    
-    clearLinkPreviewTimeouts(); // Clear previous state including any loader
-    const link = event.target.closest('a');
-    // console.log('[NoTab] 检测到鼠标按下:', link);
-    if (!link) return;
-
-    // Create and show loading indicator near mouse position with offset
-    removeLongPressLoader(); // Ensure no duplicate loaders
-    longPressLoadingIndicator = document.createElement('div');
-    longPressLoadingIndicator.className = 'NoTab-long-press-loader';
-    const spinner = document.createElement('div');
-    spinner.className = 'loading-spinner';
-    longPressLoadingIndicator.appendChild(spinner);
-    
-    // 将loading指示器放在鼠标中心位置
-    longPressLoadingIndicator.style.left = `${event.clientX}px`;
-    longPressLoadingIndicator.style.top = `${event.clientY}px`;
-    
-    appendToShadowDOM(longPressLoadingIndicator);
-
-    // 不在这里设置 isLongPressing，等到真正触发时再设置
-    // isLongPressing = true;
-
-    const preventClick = function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      document.removeEventListener('click', preventClick, true);
-    }
-
-    longPressTimeout = setTimeout(() => {
-      isLongPressing = true; // 现在才设置为true
-      // The loader will be removed by showLinkSummary
-      showLinkSummary(event, link);
-
-      // 添加一次性的捕获阶段事件监听器，阻止后续的click事件，防止点击链接后还是跳转到新页面
-      document.addEventListener('click', preventClick, true);
-
-      setTimeout(() => {
-        document.removeEventListener('click', preventClick, true);
-        isLongPressing = false; // 重置长按状态
-      }, 1000);
-    }, linkPreviewSettings.longPressDelay);
-  }
-}
-
-// Handle link click with custom trigger key
-function handleLinkClick(event) {
-  // console.log('[NoTab] 检测到快捷键+点击链接:', event.target.href, linkPreviewSettings.triggerMode, isAltPressed);
-  if (linkPreviewSettings.triggerMode !== 'alt_click') {
-    return;
-  }
-
-  // 检查配置的触发键是否按下
-  const triggerKey = linkPreviewSettings.customTriggerKey || 'alt';
-  let isTriggerKeyPressed = false;
-  
-  switch(triggerKey) {
-    case 'alt':
-      isTriggerKeyPressed = event.altKey;
-      break;
-    case 'cmd':
-      isTriggerKeyPressed = event.metaKey;
-      break;
-    case 'ctrl':
-      isTriggerKeyPressed = event.ctrlKey;
-      break;
-  }
-  
-  if (isTriggerKeyPressed || isAltPressed) {
-    // 强制阻止默认行为，防止下载行为触发
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
-
-    // console.log('[NoTab] 检测到Alt+点击链接:', event.target.href);
-    const link = event.target.closest('a');
-    if (!link || !link.href) return;
-
-    // 显示链接预览
-    showLinkSummary(event, link);
-
-    // 发送消息到background.js获取链接摘要
-    chrome.runtime.sendMessage(
-      { action: 'fetchLinkSummary', url: link.href },
-      function (response) {
-        if (response && response.summary) {
-          // 保存到缓存
-          linkSummaryCache[link.href] = response.summary;
-        }
-      }
-    );
-
-    // 返回false进一步阻止默认行为
-    return false;
-  }
-}
-
 // Handle link mouse leave
 function handleLinkLeave() {
   clearLinkPreviewTimeouts(); // This will clear timeouts and remove the loader
   // 不再自动移除预览框，让用户可以通过关闭按钮手动关闭
-}
-
-// Track if Alt key is pressed
-let isAltPressed = false;
-let altKeyResetTimer = null; // 添加重置定时器
-
-function resetAltKeyState() {
-  // console.log('[NoTab] 重置Alt键状态');
-  isAltPressed = false;
-  if (altKeyResetTimer) {
-    clearTimeout(altKeyResetTimer);
-    altKeyResetTimer = null;
-  }
-}
-
-function trackAltKeyDown(event) {
-  // 检查是否是配置的触发键
-  const triggerKey = linkPreviewSettings.customTriggerKey || 'alt';
-  let isTargetKey = false;
-  
-  switch(triggerKey) {
-    case 'alt':
-      isTargetKey = event.key === 'Alt';
-      break;
-    case 'cmd':
-      isTargetKey = event.key === 'Meta' || event.key === 'Cmd';
-      break;
-    case 'ctrl':
-      isTargetKey = event.key === 'Control';
-      break;
-  }
-  
-  if (isTargetKey) {
-    // console.log(`[NoTab] 检测到${triggerKey}键按下`);
-    isAltPressed = true;
-
-    // 清除之前的重置定时器（如果存在）
-    if (altKeyResetTimer) {
-      clearTimeout(altKeyResetTimer);
-    }
-
-    // 设置新的重置定时器，2秒后自动重置键状态
-    altKeyResetTimer = setTimeout(() => {
-      // console.log(`[NoTab] ${triggerKey}键状态超时，自动重置`);
-      resetAltKeyState();
-    }, 2000);
-
-    // 如果当前有鼠标悬停的链接，显示预览
-    const hoveredLink = document.querySelector('a:hover');
-    if (hoveredLink && linkPreviewSettings.triggerMode === 'alt_hover') {
-      clearLinkPreviewTimeouts();
-      // 创建一个包含鼠标当前位置信息的事件对象
-      const mousePosition = {
-        clientX: hoveredLink.getBoundingClientRect().left,
-        clientY: hoveredLink.getBoundingClientRect().bottom
-      };
-
-      altKeyTimeout = setTimeout(() => {
-        showLinkSummary(mousePosition, hoveredLink);
-      }, linkPreviewSettings.altHoverDelay);
-    }
-  }
-}
-
-function trackAltKeyUp(event) {
-  // console.log('[NoTab] 检测到快捷键释放');
-  const triggerKey = linkPreviewSettings.customTriggerKey || 'alt';
-  let isTargetKey = false;
-  
-  switch(triggerKey) {
-    case 'alt':
-      isTargetKey = event.key === 'Alt';
-      break;
-    case 'cmd':
-      isTargetKey = event.key === 'Meta' || event.key === 'Cmd';
-      break;
-    case 'ctrl':
-      isTargetKey = event.key === 'Control';
-      break;
-  }
-  
-  if (isTargetKey) {
-    resetAltKeyState();
-  }
-}
-
-// 在页面失去焦点或切换时重置 Alt 键状态
-document.addEventListener('visibilitychange', () => {
-  // console.log('[NoTab] 页面失去焦点或切换');
-  resetAltKeyState();
-  clearLinkPreviewTimeouts();
-  if (document.hidden) {
-    // console.log('用户切换到其他标签页或应用');
-  } else {
-    // console.log('用户回到本页面');
-  }
-});
-
-// 在用户切换到其他窗口时重置 Alt 键状态
-window.addEventListener('focusout', () => {
-  // console.log('[NoTab] 用户切换到其他窗口');
-  resetAltKeyState();
-});
-
-// Check Alt key state during mouse movement over links
-function checkAltKeyOnHover(event) {
-  const link = event.target.closest('a');
-  if (!link || !link.href) return;
-
-  if (linkPreviewSettings.triggerMode === 'alt_hover' && isAltPressed) {
-    clearLinkPreviewTimeouts();
-    altKeyTimeout = setTimeout(() => {
-      showLinkSummary(event, link);
-    }, linkPreviewSettings.altHoverDelay);
-  }
-}
-
-// Handle link hover
-function handleLinkHover(event) {
-  if (!isAltPressed) return;
-  if (linkPreviewSettings.triggerMode !== 'alt_hover') {
-    return;
-  }
-
-  // console.log('[NoTab] 检测到Alt+鼠标悬停在链接上:', event.target.href);
-  const link = event.target.closest('a');
-  if (!link || !link.href) return;
-
-  showLinkSummary(event, link);
-
-  // 发送消息到background.js获取链接摘要
-  chrome.runtime.sendMessage(
-    { action: 'fetchLinkSummary', url: link.href },
-    function (response) {
-      if (response && response.summary) {
-        // 保存到缓存
-        linkSummaryCache[link.href] = response.summary;
-      }
-    }
-  );
 }
 
 // 检查当前脚本是否在iframe中运行
@@ -2010,10 +1686,7 @@ async function showLinkSummary(event, link, errorTip = undefined) {
   // 点击外部关闭 (仅当未固定时)
   function handleClickOutside(e) {
     // console.log('[NoTab] handleClickOutside isLongPressing', isLongPressing);
-    if (isLongPressing) {
-      return;
-    }
-    
+
     // 检查是否正在交互，如果是则忽略此次点击
     if (tooltip.dataset.isInteracting === 'true') {
       return;
