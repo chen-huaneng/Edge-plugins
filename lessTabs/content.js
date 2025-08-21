@@ -1,9 +1,7 @@
 // Global variables
-let longPressTimeout = null; // 添加长按定时器
 let activePreviewUrls = []; // 修改为数组，存储所有活动的预览URL
 let activePreviews = new Map(); // 添加Map来存储预览窗口的引用
 let currentLanguage = 'zh_CN'; // 当前语言设置
-let longPressLoadingIndicator = null; // Add this line
 let currentZIndex = 999999; // 添加z-index计数器
 const BASE_ZINDEX = 999990; // 基础z-index值
 const OVERLAY_ZINDEX = 999995; // 遮罩层z-index值
@@ -1202,7 +1200,6 @@ function clearLinkPreviewTimeouts() {
     clearTimeout(hoverDebounceTimeout);
     hoverDebounceTimeout = null;
   }
-  removeLongPressLoader(); // Add this line
 }
 
 // Handle link mouse leave
@@ -1244,9 +1241,6 @@ async function showLinkSummary(event, link, errorTip = undefined) {
     });
     return; // 阻止 iframe 直接显示
   }
-
-  // Remove the long press loader if it exists (e.g., when long press succeeds)
-  removeLongPressLoader(); // Add this line
 
   // 检查用户是否可以预览链接
   const previewStatus = { canPreview: true, remainingCount: Infinity };
@@ -1319,10 +1313,10 @@ async function showLinkSummary(event, link, errorTip = undefined) {
           <a class="NoTab-link-tooltip-title" href="${link.href}" target="_blank" rel="noopener noreferrer" title="${link.href}">${displayUrl}</a>
         </div>
         <div class="NoTab-link-tooltip-actions">
-          <button class="NoTab-link-tooltip-action NoTab-link-tooltip-pin" title="${getMessage('pinPreview')}"></button>
-          <button class="NoTab-link-tooltip-action NoTab-link-tooltip-refresh" title="${getMessage('refresh')}"></button>
-          <button class="NoTab-link-tooltip-action NoTab-link-tooltip-open" title="${getMessage('openInNewWindow')}"></button>
-          <button class="NoTab-link-tooltip-action NoTab-link-tooltip-close" title="${getMessage('close')}"></button>
+          <button class="NoTab-link-tooltip-action NoTab-link-tooltip-pin" title="固定预览"></button>
+          <button class="NoTab-link-tooltip-action NoTab-link-tooltip-refresh" title="刷新"></button>
+          <button class="NoTab-link-tooltip-action NoTab-link-tooltip-open" title="在新窗口打开"></button>
+          <button class="NoTab-link-tooltip-action NoTab-link-tooltip-close" title="关闭"></button>
         </div>
       </div>
       <div class="NoTab-link-tooltip-progress"></div>
@@ -1714,20 +1708,6 @@ function setupTextSelectionListeners() {
 // Initialize when the content script loads
 init();
 
-// 全局消息存储
-let i18nMessages = {};
-
-// 自定义i18n消息获取函数，替代chrome.i18n.getMessage
-function getMessage(messageName) {
-  // 如果消息已加载到全局对象
-  if (i18nMessages && i18nMessages[messageName]) {
-    return i18nMessages[messageName].message;
-  }
-
-  // 否则，回退到chrome.i18n
-  return chrome.i18n.getMessage(messageName);
-}
-
 // 更新所有UI文本的辅助函数
 function updateAllUITexts() {
   // 更新链接预览相关文本
@@ -1739,26 +1719,11 @@ function updateAllUITexts() {
       const openBtn = preview.querySelector('.NoTab-link-tooltip-open');
       const closeBtn = preview.querySelector('.NoTab-link-tooltip-close');
 
-      if (pinBtn) pinBtn.title = getMessage('pinPreview') || '固定预览';
-      if (refreshBtn) refreshBtn.title = getMessage('refresh') || '刷新';
-      if (openBtn) openBtn.title = getMessage('openInNewWindow') || '新窗口打开';
-      if (closeBtn) closeBtn.title = getMessage('close') || '关闭';
+      if (pinBtn) pinBtn.title = '固定预览';
+      if (refreshBtn) refreshBtn.title = '刷新';
+      if (openBtn) openBtn.title = '新窗口打开';
+      if (closeBtn) closeBtn.title = '关闭';
     });
-  }
-
-  // 更新任何带有data-i18n属性的元素
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    el.textContent = getMessage(key);
-  });
-}
-
-// Helper function to remove the long press loading indicator
-function removeLongPressLoader() {
-  if (longPressLoadingIndicator) {
-    // console.log('[NoTab] removeLongPressLoader - 移除loading指示器');
-    removeFromShadowDOM(longPressLoadingIndicator);
-    longPressLoadingIndicator = null;
   }
 }
 
