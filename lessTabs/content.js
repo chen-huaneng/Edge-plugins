@@ -5,7 +5,6 @@ let isLongPressing = false; // 添加长按状态标记
 let activePreviewUrls = []; // 修改为数组，存储所有活动的预览URL
 let activePreviews = new Map(); // 添加Map来存储预览窗口的引用
 let currentLanguage = 'zh_CN'; // 当前语言设置
-let isCurrentUserVip = true;
 let longPressLoadingIndicator = null; // Add this line
 let currentZIndex = 999999; // 添加z-index计数器
 const BASE_ZINDEX = 999990; // 基础z-index值
@@ -206,24 +205,6 @@ function getPresetSize(preset) {
       return { tooltipWidth: 700, tooltipHeight: 800 };
   }
 }
-
-// 全局选中文本搜索设置
-let textSearchSettings = {
-  enabled: true,
-  searchEngine: 'google',
-  customSearchUrl: '',
-  dragTextAction: 'disabled', // 默认禁用拖拽文字动作
-  dragUrlAutoOpen: true, // 添加自动打开链接功能
-  dragLeftAction: 'translate', // 左拖动作：'translate' 或 'search'
-  dragRightAction: 'search' // 右拖动作：'translate' 或 'search'
-};
-
-// 搜索引擎URL模板
-const searchEngineUrls = {
-  google: 'https://www.google.com/search?q=%s',
-  bing: 'https://www.bing.com/search?q=%s',
-  baidu: 'https://www.baidu.com/s?wd=%s'
-};
 
 function makeHeaders() {
   const headers = {
@@ -1277,9 +1258,6 @@ async function init() {
   // 加载链接预览设置
   loadLinkPreviewSettings();
 
-  // 加载选中文本搜索设置
-  loadTextSearchSettings();
-
   // 在init函数中添加加载上次预览状态
   await loadLastPreviewState();
 
@@ -1319,18 +1297,6 @@ function loadLinkPreviewSettings() {
   });
 }
 
-// 加载选中文本搜索设置
-function loadTextSearchSettings() {
-  chrome.storage.local.get(['textSearchSettings'], function (result) {
-    if (result.textSearchSettings) {
-      textSearchSettings = {
-        ...textSearchSettings,
-        ...result.textSearchSettings
-      };
-    }
-  });
-}
-
 // Set up event listeners
 function setupEventListeners() {
   // Listen for messages from popup
@@ -1342,15 +1308,6 @@ function setupEventListeners() {
       if (request.settings) {
         // console.log('[NoTab] 接收到链接预览设置更新:', request.settings);
         linkPreviewSettings = request.settings;
-        sendResponse({ success: true });
-      } else {
-        sendResponse({ success: false, message: '未提供设置数据' });
-      }
-    } else if (request.action === 'updateTextSearchSettings') {
-      // 处理选中文本搜索设置更新
-      if (request.settings) {
-        // console.log('[NoTab] 接收到选中文本搜索设置更新:', request.settings);
-        textSearchSettings = request.settings;
         sendResponse({ success: true });
       } else {
         sendResponse({ success: false, message: '未提供设置数据' });
@@ -2110,7 +2067,7 @@ async function showLinkSummary(event, link, errorTip = undefined) {
   });
 
   // 如果可以预览或用户是VIP，绑定其他事件
-  if (previewStatus.canPreview || isCurrentUserVip) { // 修改这里
+  if (previewStatus.canPreview) { // 修改这里
     const openBtn = tooltip.querySelector('.NoTab-link-tooltip-open');
     const refreshBtn = tooltip.querySelector('.NoTab-link-tooltip-refresh');
     const pinBtn = tooltip.querySelector('.NoTab-link-tooltip-pin');
@@ -2493,62 +2450,6 @@ function setupTextSelectionListeners() {
   // 现在在onMessage中统一处理
 }
 
-// 搜索选中文本
-function searchSelectedText(text) {
-  // 如果在iframe中，发送消息给父窗口处理
-  if (isInIframe) {
-    postMessageToParent('searchSelectedText', { text: text });
-    return;
-  }
-
-  // 获取搜索URL
-  let searchUrl = getSearchUrl(text);
-
-  // 创建虚拟链接元素
-  const linkElement = document.createElement('a');
-  linkElement.href = searchUrl;
-  linkElement.textContent = text;
-
-  // 显示搜索结果预览
-  showLinkSummary(null, linkElement);
-}
-
-// 获取搜索URL
-function getSearchUrl(query) {
-
-  // 如果启用了自动打开链接功能，检查是否是有效的URL
-  if (textSearchSettings.dragUrlAutoOpen) {
-    try {
-      const urlPattern = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?$/;
-      if (urlPattern.test(query)) {
-        // 如果是有效的URL，但没有协议，添加https://
-        if (!query.startsWith('http')) {
-          return 'https://' + query;
-        }
-        return query;
-      }
-    } catch (e) {
-      // 如果URL解析失败，继续使用搜索
-      console.error('URL parsing failed:', e);
-    }
-  }
-
-  const engine = textSearchSettings.searchEngine;
-  let urlTemplate = '';
-
-  if (engine === 'custom' && textSearchSettings.customSearchUrl) {
-    urlTemplate = textSearchSettings.customSearchUrl;
-  } else if (searchEngineUrls[engine]) {
-    urlTemplate = searchEngineUrls[engine];
-  } else {
-    // 默认使用Google
-    urlTemplate = searchEngineUrls.google;
-  }
-
-  // 替换查询参数
-  return urlTemplate.replace('%s', encodeURIComponent(query));
-}
-
 // Initialize when the content script loads
 init();
 
@@ -2623,11 +2524,6 @@ function handleDocumentDragEnd(event) {
     }
   }
 
-  // 如果不是链接或链接预览未启用，尝试处理文本拖拽
-  if (textSearchSettings.dragTextAction === 'disabled') {
-    return; // 如果文本拖拽动作被禁用，直接返回
-  }
-
   // 获取选中的文本
   const selectedText = window.getSelection().toString().trim();
   if (!selectedText || selectedText.length === 0) {
@@ -2636,13 +2532,6 @@ function handleDocumentDragEnd(event) {
 
   // console.log('[NoTab] 检测到文本拖拽结束:', selectedText);
 
-  // 传统单动作模式
-  if (textSearchSettings.dragTextAction === 'search') {
-      searchSelectedText(selectedText);
-  } else if (textSearchSettings.dragTextAction === 'translate') {
-      translateSelectedText(selectedText);
-  }
-  
   // 重置拖拽状态
   isDragging = false;
 }
@@ -2738,12 +2627,6 @@ function handleIframeMessages(event) {
         const virtualEvent = data.positionData ? { clientX: data.positionData.clientX, clientY: data.positionData.clientY } : null;
         // 调用主窗口的 showLinkSummary
         showLinkSummary(virtualEvent, virtualLink, data.errorTip);
-        break;
-      case 'searchSelectedText':
-        searchSelectedText(data.text);
-        break;
-      case 'translateSelectedText':
-        translateSelectedText(data.text);
         break;
       case 'closePreview':
         // 直接执行 Esc 关闭逻辑

@@ -14,11 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
   loadLinkPreviewSettings();
   // 初始化链接预览设置
   initLinkPreviewSettings();
-  
-  // 加载选中文本搜索设置
-  loadTextSearchSettings();
-  // 初始化选中文本搜索设置
-  initTextSearchSettings();
 });
 
 // 显示通知
@@ -303,83 +298,6 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
-
-// 加载选中文本搜索设置
-function loadTextSearchSettings() {
-  chrome.storage.local.get(['textSearchSettings'], function(result) {
-    if (result.textSearchSettings) {
-      const settings = result.textSearchSettings;
-      
-      // 应用加载的设置到UI
-      document.getElementById('searchEngine').value = settings.searchEngine;
-
-      if (settings.customSearchUrl) {
-        document.getElementById('customSearchUrl').value = settings.customSearchUrl;
-      }
-      
-      // 如果选择了自定义搜索引擎，显示自定义URL输入框
-      if (settings.searchEngine === 'custom') {
-        document.getElementById('customSearchContainer').style.display = 'block';
-      }
-    } else {
-      // 默认设置
-      const defaultSettings = {
-        enabled: true, // 默认始终启用
-        searchEngine: 'google',
-        customSearchUrl: '',
-        dragTextAction: 'search', // 默认搜索
-      };
-      
-      // 保存默认设置
-      chrome.storage.local.set({ textSearchSettings: defaultSettings });
-    }
-  });
-}
-
-// 初始化选中文本搜索设置
-function initTextSearchSettings() {
-  const searchEngineSelect = document.getElementById('searchEngine');
-  const customSearchUrlInput = document.getElementById('customSearchUrl');
-  const customSearchContainer = document.getElementById('customSearchContainer');
-  
-  // 保存设置的函数
-  function saveTextSearchSettings() {
-    const settings = {
-      enabled: true, // 始终启用
-      searchEngine: searchEngineSelect.value,
-      customSearchUrl: customSearchUrlInput.value,
-    };
-    
-    // 保存到存储
-    chrome.storage.local.set({ textSearchSettings: settings }, function() {
-      // 通知content script
-      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        if (tabs && tabs[0] && tabs[0].id) {
-          chrome.tabs.sendMessage(tabs[0].id, {
-            action: 'updateTextSearchSettings',
-            settings: settings
-          });
-        }
-      });
-      showNotification(getMessage('textSearchSettingsUpdated') || '选中文本搜索设置已更新', 'success');
-    });
-  }
-  
-  // 处理搜索引擎选择变更
-  searchEngineSelect.addEventListener('change', function() {
-    // 如果选择了自定义搜索引擎，显示自定义URL输入框
-    if (this.value === 'custom') {
-      customSearchContainer.style.display = 'block';
-    } else {
-      customSearchContainer.style.display = 'none';
-    }
-    
-    saveTextSearchSettings();
-  });
-  
-  // 处理自定义搜索URL变更
-  customSearchUrlInput.addEventListener('change', saveTextSearchSettings);
-}
 
 // 初始化主题选择器
 function initThemeSelector() {
