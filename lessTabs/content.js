@@ -4,7 +4,7 @@ let longPressTimeout = null; // 添加长按定时器
 let isLongPressing = false; // 添加长按状态标记
 let activePreviewUrls = []; // 修改为数组，存储所有活动的预览URL
 let activePreviews = new Map(); // 添加Map来存储预览窗口的引用
-let currentLanguage = 'en'; // 当前语言设置
+let currentLanguage = 'zh_CN'; // 当前语言设置
 let isCurrentUserVip = true;
 let longPressLoadingIndicator = null; // Add this line
 let currentZIndex = 999999; // 添加z-index计数器
@@ -533,11 +533,6 @@ async function init() {
       min-height: 0; /* Prevent body from overflowing */
     }
 
-    .NoTab-limit-message {
-      padding: 12px 16px;
-      font-size: 18px;
-    }
-
     .NoTab-link-tooltip-summary {
       padding: 12px 16px;
       font-size: 13px;
@@ -802,8 +797,6 @@ async function init() {
       --tooltip-remaining-previews-text: #333333;
       --tooltip-remaining-previews-hover-bg: #e0e0e0;
       --tooltip-remaining-previews-hover-text: #111111;
-      --tooltip-limit-message-text: #333333;
-      --tooltip-limit-footnote-text: #666666;
       --tooltip-upgrade-button-bg: #4285f4;
       --tooltip-upgrade-button-text: white;
     }
@@ -831,10 +824,6 @@ async function init() {
       --tooltip-remaining-previews-text: #ccc;
       --tooltip-remaining-previews-hover-bg: #555;
       --tooltip-remaining-previews-hover-text: #eee;
-      --tooltip-limit-message-text: #e0e0e0;
-      --tooltip-limit-footnote-text: #aaa;
-      --tooltip-upgrade-button-bg: rgb(249, 171, 3);
-      --tooltip-upgrade-button-text: #111;
     }
 
     .NoTab-link-tooltip.theme-gray {
@@ -860,10 +849,6 @@ async function init() {
       --tooltip-remaining-previews-text: #555;
       --tooltip-remaining-previews-hover-bg: #bbb;
       --tooltip-remaining-previews-hover-text: #333;
-      --tooltip-limit-message-text: #333;
-      --tooltip-limit-footnote-text: #555;
-      --tooltip-upgrade-button-bg: rgb(249, 171, 3);
-      --tooltip-upgrade-button-text: white;
     }
     
     /* 蓝色主题 */
@@ -890,10 +875,6 @@ async function init() {
       --tooltip-remaining-previews-text: #2b6cb0;
       --tooltip-remaining-previews-hover-bg: #90cdf4;
       --tooltip-remaining-previews-hover-text: #2c5282;
-      --tooltip-limit-message-text: #2b6cb0;
-      --tooltip-limit-footnote-text: #4a5568;
-      --tooltip-upgrade-button-bg: #4299e1;
-      --tooltip-upgrade-button-text: white;
     }
     
     /* 绿色主题 */
@@ -920,10 +901,6 @@ async function init() {
       --tooltip-remaining-previews-text: #276749;
       --tooltip-remaining-previews-hover-bg: #9ae6b4;
       --tooltip-remaining-previews-hover-text: #22543d;
-      --tooltip-limit-message-text: #276749;
-      --tooltip-limit-footnote-text: #4a5568;
-      --tooltip-upgrade-button-bg: #48bb78;
-      --tooltip-upgrade-button-text: white;
     }
     
     /* 紫色主题 */
@@ -950,10 +927,6 @@ async function init() {
       --tooltip-remaining-previews-text: #553c9a;
       --tooltip-remaining-previews-hover-bg: #d6bcfa;
       --tooltip-remaining-previews-hover-text: #44337a;
-      --tooltip-limit-message-text: #553c9a;
-      --tooltip-limit-footnote-text: #4a5568;
-      --tooltip-upgrade-button-bg: #805ad5;
-      --tooltip-upgrade-button-text: white;
     }
     
     /* 粉色主题 */
@@ -980,10 +953,6 @@ async function init() {
       --tooltip-remaining-previews-text: #b83280;
       --tooltip-remaining-previews-hover-bg: #fbb6ce;
       --tooltip-remaining-previews-hover-text: #97266d;
-      --tooltip-limit-message-text: #b83280;
-      --tooltip-limit-footnote-text: #4a5568;
-      --tooltip-upgrade-button-bg: #ed64a6;
-      --tooltip-upgrade-button-text: white;
     }
 
     /* 自定义主题 - 基础定义，具体颜色由JS动态设置 */
@@ -1011,10 +980,6 @@ async function init() {
       --tooltip-remaining-previews-text: #333333;
       --tooltip-remaining-previews-hover-bg: #e0e0e0;
       --tooltip-remaining-previews-hover-text: #111111;
-      --tooltip-limit-message-text: #333333;
-      --tooltip-limit-footnote-text: #666666;
-      --tooltip-upgrade-button-bg: #4285f4;
-      --tooltip-upgrade-button-text: white;
     }
 
     /* Update existing styles to use variables */
@@ -1173,74 +1138,6 @@ async function init() {
       width: 100%;
       background: var(--tooltip-bg); /* Use variable */
       min-height: 0; /* Prevent body from overflowing */
-    }
-
-    .NoTab-limit-message {
-      padding: 12px 16px;
-      font-size: 18px;
-      color: var(--tooltip-limit-message-text); /* Use variable */
-      margin-bottom: 20px; /* 消息和按钮之间的间距 */
-      line-height: 1.6;
-      max-width: 280px; /* 限制文本宽度以改善布局 */
-    }
-
-    .NoTab-limit-reached-body {
-      display: flex;
-      flex-direction: column; /* 垂直排列 */
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      text-align: center;
-      background: var(--tooltip-bg); /* Use variable */
-    }
-
-    .NoTab-upgrade-button {
-      padding: 10px 24px; /* 调整按钮内边距 */
-      background-color: var(--tooltip-upgrade-button-bg); /* Use variable */
-      color: var(--tooltip-upgrade-button-text); /* Use variable */
-      border: none;
-      border-radius: 25px; /* 圆角按钮 */
-      cursor: pointer;
-      font-size: 16px; /* 稍大字体 */
-      font-weight: bold; /* 加粗字体 */
-      transition: background-color 0.2s, transform 0.1s;
-      display: inline-flex; /* 让按钮和箭头在同一行 */
-      align-items: center;
-      gap: 8px; /* 按钮文字和箭头间距 */
-      margin-bottom: 10px; /* 按钮和脚注之间的间距 */
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      text-decoration: none;
-    }
-
-    .NoTab-upgrade-button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-      filter: brightness(1.1);
-    }
-
-    .NoTab-upgrade-button:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    .NoTab-upgrade-arrow {
-      display: inline-block;
-      width: 18px; /* 箭头容器宽度 */
-      height: 18px; /* 箭头容器高度 */
-      line-height: 18px; /* 垂直居中箭头 */
-      text-align: center;
-      border: 1px solid currentColor;
-      border-radius: 50%; /* 圆形边框 */
-      font-weight: bold;
-      font-size: 12px;
-    }
-
-    .NoTab-limit-footnote {
-      font-size: 12px;
-      color: var(--tooltip-limit-footnote-text); /* Use variable */
-      margin-top: 5px; /* 脚注和按钮之间的间距 */
-      opacity: 0.8;
-      line-height: 1.4;
     }
 
     .NoTab-link-tooltip-summary {
@@ -3219,44 +3116,11 @@ function handleDocumentDragEnd(event) {
 
   // console.log('[NoTab] 检测到文本拖拽结束:', selectedText);
 
-  // 如果启用了双动作模式，根据拖拽方向决定动作
-  if (textSearchSettings.dragTextAction === 'both') {
-    const dragEndX = event.clientX || 0;
-    const dragDeltaX = dragEndX - dragStartX;
-    
-    // 根据拖拽方向决定动作
-    if (dragDeltaX < -20) {
-      // 向左拖拽
-      const leftAction = textSearchSettings.dragLeftAction || 'translate';
-      if (leftAction === 'search') {
-        searchSelectedText(selectedText);
-      } else {
-        translateSelectedText(selectedText);
-      }
-    } else if (dragDeltaX > 20) {
-      // 向右拖拽
-      const rightAction = textSearchSettings.dragRightAction || 'search';
-      if (rightAction === 'search') {
-        searchSelectedText(selectedText);
-      } else {
-        translateSelectedText(selectedText);
-      }
-    } else {
-      // 垂直拖拽或距离太短，默认使用左拖动作
-      const leftAction = textSearchSettings.dragLeftAction || 'translate';
-      if (leftAction === 'search') {
-        searchSelectedText(selectedText);
-      } else {
-        translateSelectedText(selectedText);
-      }
-    }
-  } else {
-    // 传统单动作模式
-    if (textSearchSettings.dragTextAction === 'search') {
+  // 传统单动作模式
+  if (textSearchSettings.dragTextAction === 'search') {
       searchSelectedText(selectedText);
-    } else if (textSearchSettings.dragTextAction === 'translate') {
+  } else if (textSearchSettings.dragTextAction === 'translate') {
       translateSelectedText(selectedText);
-    }
   }
   
   // 重置拖拽状态
@@ -3427,10 +3291,6 @@ function updateCustomThemeStyle(colors) {
       --tooltip-remaining-previews-text: ${textColor};
       --tooltip-remaining-previews-hover-bg: ${adjustColor(bgColor, -20)};
       --tooltip-remaining-previews-hover-text: ${textColor};
-      --tooltip-limit-message-text: ${textColor};
-      --tooltip-limit-footnote-text: ${adjustColor(textColor, 50)};
-      --tooltip-upgrade-button-bg: ${accentColor};
-      --tooltip-upgrade-button-text: ${isLightColor(accentColor) ? '#000000' : '#ffffff'};
     }
   `;
   

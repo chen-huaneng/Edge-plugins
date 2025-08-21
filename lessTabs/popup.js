@@ -16,7 +16,6 @@ function formatDelayTime(value) {
 
 document.addEventListener('DOMContentLoaded', function() {
   // 先初始化语言选择，然后初始化国际化
-  initLanguageSelect();
   initI18n();
   
   // 加载链接预览设置
@@ -333,47 +332,6 @@ function reloadAllI18nText(language) {
   });
 }
 
-// 初始化语言选择
-function initLanguageSelect() {
-  const languageSelect = document.getElementById('languageSelect');
-  
-  // 获取当前语言设置
-  chrome.storage.local.get(['language'], function(result) {
-    const currentLanguage = result.language || chrome.i18n.getUILanguage();
-    // console.log('[NoTab] 初始化语言选择框，当前语言:', currentLanguage);
-    languageSelect.value = currentLanguage;
-    
-    // 如果当前语言不在选项中，默认选择英语
-    if (!languageSelect.value) {
-      languageSelect.value = 'en';
-    }
-  });
-  
-  // 自动保存语言设置
-  function saveLanguage() {
-    const selectedLanguage = languageSelect.value;
-    // console.log('[NoTab] 保存语言设置:', selectedLanguage);
-    
-    // 保存到本地存储
-    chrome.storage.local.set({ language: selectedLanguage }, function() {
-      // 发送消息到background脚本通知语言已更改
-      chrome.runtime.sendMessage({ 
-        action: 'languageChanged', 
-        language: selectedLanguage 
-      });
-      
-      // 重新加载所有文本
-      reloadAllI18nText(selectedLanguage);
-      
-      // 显示通知
-      showNotification(getMessage('languageUpdated'), 'success');
-    });
-  }
-  
-  // 语言选择变更时自动保存
-  languageSelect.addEventListener('change', saveLanguage);
-}
-
 // 自定义i18n消息获取函数，替代chrome.i18n.getMessage
 function getMessage(messageName) {
   // 如果消息已加载到全局对象
@@ -434,26 +392,6 @@ function loadTextSearchSettings() {
         document.getElementById('dragTextAction').value = settings.dragTextAction;
       }
 
-      // 加载自动打开链接设置
-      if (settings.dragUrlAutoOpen !== undefined) {
-        document.getElementById('dragUrlAutoOpen').checked = settings.dragUrlAutoOpen;
-      }
-      
-      // 加载拖拽方向设置
-      if (settings.dragTextAction === 'both') {
-        updateDragDirectionVisibility(true);
-      } else {
-        updateDragDirectionVisibility(false);
-      }
-      
-      if (settings.dragLeftAction) {
-        document.getElementById('dragLeftAction').value = settings.dragLeftAction;
-      }
-      
-      if (settings.dragRightAction) {
-        document.getElementById('dragRightAction').value = settings.dragRightAction;
-      }
-      
       if (settings.customSearchUrl) {
         document.getElementById('customSearchUrl').value = settings.customSearchUrl;
       }
@@ -469,7 +407,6 @@ function loadTextSearchSettings() {
         searchEngine: 'google',
         customSearchUrl: '',
         dragTextAction: 'search', // 默认搜索
-        dragUrlAutoOpen: true, // 默认启用自动打开链接
         dragRightAction: 'search' // 默认右拖搜索
       };
       
@@ -479,25 +416,12 @@ function loadTextSearchSettings() {
   });
 }
 
-// 更新拖拽方向设置的显示状态
-function updateDragDirectionVisibility(enabled) {
-  const dragDirectionContainer = document.getElementById('dragDirectionContainer');
-  if (enabled) {
-    dragDirectionContainer.style.display = 'block';
-  } else {
-    dragDirectionContainer.style.display = 'none';
-  }
-}
-
 // 初始化选中文本搜索设置
 function initTextSearchSettings() {
   const searchEngineSelect = document.getElementById('searchEngine');
   const customSearchUrlInput = document.getElementById('customSearchUrl');
   const customSearchContainer = document.getElementById('customSearchContainer');
   const dragTextActionSelect = document.getElementById('dragTextAction');
-  const dragUrlAutoOpenCheckbox = document.getElementById('dragUrlAutoOpen');
-  const dragLeftActionSelect = document.getElementById('dragLeftAction');
-  const dragRightActionSelect = document.getElementById('dragRightAction');
   
   // 保存设置的函数
   function saveTextSearchSettings() {
@@ -506,9 +430,6 @@ function initTextSearchSettings() {
       searchEngine: searchEngineSelect.value,
       customSearchUrl: customSearchUrlInput.value,
       dragTextAction: dragTextActionSelect.value,
-      dragUrlAutoOpen: dragUrlAutoOpenCheckbox.checked,
-      dragLeftAction: dragLeftActionSelect.value,
-      dragRightAction: dragRightActionSelect.value
     };
     
     // 保存到存储
@@ -537,19 +458,6 @@ function initTextSearchSettings() {
     
     saveTextSearchSettings();
   });
-  
-  // 处理拖拽文字动作选择变更
-  dragTextActionSelect.addEventListener('change', function() {
-    updateDragDirectionVisibility(this.value === 'both');
-    saveTextSearchSettings();
-  });
-  
-  // 处理自动打开链接开关变更
-  dragUrlAutoOpenCheckbox.addEventListener('change', saveTextSearchSettings);
-  
-  // 处理拖拽方向设置变更
-  dragLeftActionSelect.addEventListener('change', saveTextSearchSettings);
-  dragRightActionSelect.addEventListener('change', saveTextSearchSettings);
   
   // 处理自定义搜索URL变更
   customSearchUrlInput.addEventListener('change', saveTextSearchSettings);

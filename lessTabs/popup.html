@@ -20,21 +20,21 @@
         <div class="settings-group">
           <div class="group-header">
             <i class="fas fa-link"></i>
-            <h2 id="linkPreviewSettings-text"></h2>
+            <h2 id="linkPreviewSettings-text">链接预览设置</h2>
           </div>
           
           <div class="setting-item">
             <label for="linkPreviewTrigger">
               <i class="fas fa-mouse-pointer"></i>
-              <span id="triggerMethod-text"></span>
+              <span id="triggerMethod-text">触发方式</span>
             </label>
             <select id="linkPreviewTrigger" class="styled-select">
-              <option value="alt_hover" id="altHover-text"></option>
-              <option value="alt_click" id="altClick-text"></option>
-              <option value="long_press" id="longPress-text"></option>
-              <option value="drag_link" id="dragLink-text"></option>
-              <option value="hover" id="hover-text"></option>
-              <option value="disabled" id="disabled-text"></option>
+              <option value="alt_hover" id="altHover-text">Alt+悬停</option>
+              <option value="alt_click" id="altClick-text">Alt+点击</option>
+              <option value="long_press" id="longPress-text">长按链接</option>
+              <option value="drag_link" id="dragLink-text">拖动链接</option>
+              <option value="hover" id="hover-text">悬停</option>
+              <option value="disabled" id="disabled-text">禁用</option>
             </select>
           </div>
           
@@ -53,7 +53,7 @@
           <div class="setting-item" id="longPressDelayContainer">
             <label for="longPressDelay">
               <i class="fas fa-clock"></i>
-              <span id="longPressDelay-text"></span>
+              <span id="longPressDelay-text">长按延迟</span>
             </label>
             <div class="range-wrapper">
               <input type="range" id="longPressDelay" min="200" max="10000" step="100" value="500">
@@ -64,7 +64,7 @@
           <div class="setting-item" id="altHoverDelayContainer">
             <label for="altHoverDelay">
               <i class="fas fa-clock"></i>
-              <span id="hoverDelay-text"></span>
+              <span id="hoverDelay-text">悬停延迟</span>
             </label>
             <div class="range-wrapper">
               <input type="range" id="altHoverDelay" min="200" max="10000" step="100" value="200">
@@ -233,51 +233,10 @@
             </label>
             <select id="dragTextAction" class="styled-select">
               <option value="search" id="dragTextActionSearch-text">搜索</option>
-              <option value="translate" id="dragTextActionTranslate-text">翻译</option>
-              <option value="both" id="dragTextActionBoth-text">同时启用</option>
               <option value="disabled" id="dragTextActionDisabled-text">禁用</option>
             </select>
           </div>
           
-          <div class="setting-item" id="dragDirectionContainer" style="display: none; width: 100%;">
-            <div style="display: flex; gap: 10px; align-items: center; justify-content: space-between;">
-              <div style="flex: 1;">
-                <label for="dragLeftAction" style="font-size: 12px;">
-                  <i class="fas fa-arrow-left"></i>
-                  <span id="dragLeftAction-text" class="single-line-text">左拖动作</span>
-                </label>
-                <select id="dragLeftAction" class="styled-select styled-select-small" style="margin-top: 10px;">
-                  <option value="translate" id="dragLeftActionTranslate-text">翻译</option>
-                  <option value="search" id="dragLeftActionSearch-text">搜索</option>
-                </select>
-              </div>
-              <div style="flex: 1;">
-                <label for="dragRightAction" style="font-size: 12px;">
-                  <i class="fas fa-arrow-right"></i>
-                  <span id="dragRightAction-text" class="single-line-text">右拖动作</span>
-                </label>
-                <select id="dragRightAction" class="styled-select styled-select-small" style="margin-top: 10px;">
-                  <option value="search" id="dragRightActionSearch-text">搜索</option>
-                  <option value="translate" id="dragRightActionTranslate-text">翻译</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <p class="settings-description settings-description-inner" id="dragTextInstructions-text">选中文本后拖拽即可触发搜索或翻译</p>
-          
-          <div class="setting-item">
-            <label>
-              <i class="fas fa-link"></i>
-              <span id="dragUrlAutoOpen-text">自动打开链接</span>
-            </label>
-            <div class="toggle-switch">
-              <input type="checkbox" id="dragUrlAutoOpen" class="toggle-input">
-              <label for="dragUrlAutoOpen" class="toggle-slider"></label>
-            </div>
-          </div>
-          
-          <p class="settings-description" id="dragUrlAutoOpenInstructions-text">如果选中文本是URL，会自动打开链接</p>
         </div>
         
         <!-- 选中文本搜索设置 -->
@@ -325,26 +284,6 @@
           </div>
 
           <p class="settings-description settings-description-inner" id="blacklistSitesDescription-text">在以下网站上不启用链接预览功能</p>
-        </div>
-          
-        
-        <!-- 语言设置 -->
-        <div class="settings-group">
-          <div class="group-header">
-            <i class="fas fa-language"></i>
-            <h2 id="languageSettings-text"></h2>
-          </div>
-          
-          <div class="setting-item">
-            <label for="languageSelect">
-              <i class="fas fa-globe"></i>
-              <span id="language-text"></span>
-            </label>
-            <select id="languageSelect" class="styled-select">
-              <option value="en" id="languageEnglish-text"></option>
-              <option value="zh_CN" id="languageSimplifiedChinese-text"></option>
-            </select>
-          </div>
         </div>
 
       </div>
